@@ -1,4 +1,4 @@
-package scoring;
+package gate.coreference;
 
 import java.util.HashMap;
 import java.util.HashSet;

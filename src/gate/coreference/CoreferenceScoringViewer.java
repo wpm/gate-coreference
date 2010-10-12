@@ -1,4 +1,4 @@
-package scoring;
+package gate.coreference;
 
 import gate.Resource;
 import gate.creole.AbstractVisualResource;

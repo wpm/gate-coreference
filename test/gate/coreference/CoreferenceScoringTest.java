@@ -1,10 +1,12 @@
-package scoring;
+package gate.coreference;
 
 
 import static org.junit.Assert.*;
 
 import org.junit.Before;
 import org.junit.Test;
+
+import gate.coreference.BCubed;
 
 import java.util.HashSet;
 import java.util.Set;
