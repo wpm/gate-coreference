@@ -39,7 +39,7 @@ public class CoreferenceScoringViewer extends AbstractVisualResource implements
 	public void setTarget(Object target) {
 		// TODO Auto-generated method stub
 		logger.info("Set target " + target.toString());
-		if (null != corpus)
+		if (null != corpus && corpus != target)
 			corpus.removeCorpusListener(this);
 		corpus = (Corpus) target;
 		corpus.addCorpusListener(this);

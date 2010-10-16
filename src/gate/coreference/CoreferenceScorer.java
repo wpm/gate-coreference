@@ -5,6 +5,9 @@ import java.util.Set;
 /**
  * Coreference scorer
  * 
+ * @param T
+ *            objects in coreference sets
+ * 
  * @author <a href="mailto:billmcn@gmail.com">W.P. McNeill</a>
  */
 public interface CoreferenceScorer<T> {
