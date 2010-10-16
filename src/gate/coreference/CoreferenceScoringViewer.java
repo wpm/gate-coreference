@@ -2,6 +2,7 @@ package gate.coreference;
 
 import org.apache.log4j.Logger;
 
+import gate.Corpus;
 import gate.Resource;
 import gate.creole.AbstractVisualResource;
 import gate.creole.ResourceInstantiationException;
@@ -22,8 +23,10 @@ public class CoreferenceScoringViewer extends AbstractVisualResource implements
 	static Logger logger = Logger.getLogger(CoreferenceScoringViewer.class
 			.getName());
 
+	private Corpus corpus;
+
 	public Resource init() throws ResourceInstantiationException {
-		logger.info("Initialize");
+		logger.info("Initialize coreference viewer");
 		return super.init();
 	}
 
@@ -36,7 +39,11 @@ public class CoreferenceScoringViewer extends AbstractVisualResource implements
 	public void setTarget(Object target) {
 		// TODO Auto-generated method stub
 		logger.info("Set target " + target.toString());
-		super.setTarget(target);
+		if (null != corpus)
+			corpus.removeCorpusListener(this);
+		corpus = (Corpus) target;
+		corpus.addCorpusListener(this);
+		corpusUpdated();
 	}
 
 	/*
@@ -59,6 +66,13 @@ public class CoreferenceScoringViewer extends AbstractVisualResource implements
 	public void documentRemoved(CorpusEvent e) {
 		// TODO Auto-generated method stub
 		logger.info("Document removed " + e.toString());
+	}
+
+	/**
+	 * 
+	 */
+	private void corpusUpdated() {
+		// TODO Auto-generated method stub
 	}
 
 }
