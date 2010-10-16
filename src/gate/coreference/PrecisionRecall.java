@@ -51,7 +51,12 @@ public class PrecisionRecall {
 	}
 
 	public double getFScore() {
-		// TODO Implement F-score
-		return 0;
+		return getFScore(1);
+	}
+	
+	public double getFScore(double beta) {
+		double betaSquared = Math.pow(beta, 2);
+		return (1 + betaSquared) * precision * recall
+				/ (betaSquared * (precision + recall));
 	}
 }
