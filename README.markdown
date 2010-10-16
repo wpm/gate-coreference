@@ -1,0 +1,1 @@
+Coreference scoring plugin for [GATE](http://gate.ac.uk/).
