@@ -25,6 +25,7 @@ public class CoreferenceScoringViewer extends AbstractVisualResource implements
 
 	private Corpus corpus;
 
+	@Override
 	public Resource init() throws ResourceInstantiationException {
 		logger.info("Initialize coreference viewer");
 		return super.init();

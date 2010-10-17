@@ -1,6 +1,5 @@
 package gate.coreference;
 
-
 import static org.junit.Assert.*;
 
 import org.junit.Before;
@@ -10,7 +9,6 @@ import gate.coreference.BCubed;
 
 import java.util.HashSet;
 import java.util.Set;
-
 
 public class CoreferenceScoringTest {
 
@@ -29,7 +27,7 @@ public class CoreferenceScoringTest {
 		Set<Set<Integer>> response = createPartition(responseValues);
 		double[] scores = bcubed.score(response);
 		// Precision
-		assertEquals(16.0/21.0, scores[0], 1e-05);
+		assertEquals(16.0 / 21.0, scores[0], 1e-05);
 		// Recall
 		assertEquals(1, scores[1], 1e-05);
 	}
