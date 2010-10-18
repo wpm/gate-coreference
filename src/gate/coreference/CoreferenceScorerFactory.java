@@ -11,13 +11,16 @@ import java.util.Set;
 public class CoreferenceScorerFactory<T> {
 
 	public static enum Method {
-		BCUBED
+		BCUBED, MUC
 	};
 
 	public CoreferenceScorer<T> getScorer(Method method, Set<Set<T>> key) {
 		CoreferenceScorer<T> scorer;
 
 		switch (method) {
+		case MUC:
+			scorer = new MUC<T>(key);
+			break;
 		case BCUBED:
 		default:
 			scorer = new BCubed<T>(key);

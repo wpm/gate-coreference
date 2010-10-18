@@ -13,7 +13,7 @@ import java.util.Set;
  * 
  * @author <a href="mailto:billmcn@gmail.com">W.P. McNeill</a>
  */
-public class BCubed<T> implements CoreferenceScorer<T> {
+public class BCubed<T> extends SetScorer<T> implements CoreferenceScorer<T> {
 
 	final private Map<T, Set<T>> keyTable;
 
@@ -104,38 +104,6 @@ public class BCubed<T> implements CoreferenceScorer<T> {
 	private Set<T> getTableSet(T element, Map<T, Set<T>> table) {
 		return table.containsKey(element) ? table.get(element)
 				: new HashSet<T>();
-	}
-
-	/**
-	 * Set union
-	 * 
-	 * @param a
-	 *            set
-	 * @param b
-	 *            set
-	 * @return union of a and b
-	 */
-	private Set<T> union(Set<T> a, Set<T> b) {
-		Set<T> union = new HashSet<T>();
-		union.addAll(a);
-		union.addAll(b);
-		return union;
-	}
-
-	/**
-	 * Set intersection
-	 * 
-	 * @param a
-	 *            set
-	 * @param b
-	 *            set
-	 * @return intersection of a and b
-	 */
-	private Set<T> intersection(Set<T> a, Set<T> b) {
-		Set<T> intersection = new HashSet<T>();
-		intersection.addAll(a);
-		intersection.retainAll(b);
-		return intersection;
 	}
 
 }
