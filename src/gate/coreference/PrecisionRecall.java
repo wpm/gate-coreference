@@ -30,7 +30,7 @@ public class PrecisionRecall {
 	public String toString() {
 		StringBuilder s = new StringBuilder();
 		Formatter formatter = new Formatter(s);
-		formatter.format("Precision = %0.4f, Recall = %0.4f, F-score = %0.4f",
+		formatter.format("Precision = %f, Recall = %f, F-score = %f",
 				precision, recall, getFScore());
 		return s.toString();
 	}

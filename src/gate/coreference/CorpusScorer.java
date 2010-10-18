@@ -9,15 +9,21 @@ import gate.DataStore;
 import gate.Document;
 import gate.Factory;
 import gate.FeatureMap;
+import gate.Gate;
+import gate.creole.ANNIEConstants;
 import gate.util.GateException;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import org.apache.log4j.BasicConfigurator;
 
 /**
  * Coreference precision/recall scores for a corpus.
@@ -26,15 +32,14 @@ import java.util.Set;
  */
 public class CorpusScorer {
 
-	final private static String DEFAULT_MATCH_FEATURE = "MatchesAnnots";
 	final private static String DEFAULT_KEY_NAME = "Key";
 
-	private Map<Document, PrecisionRecall> score;
+	private Map<Document, PrecisionRecall> score = new HashMap<Document, PrecisionRecall>();
 
 	/**
 	 * Scoring is done over sets of (Start, End) offset pairs.
 	 */
-	private CoreferenceScorerFactory<List<Integer>> scorerFactory;
+	private CoreferenceScorerFactory<List<Long>> scorerFactory;
 
 	/**
 	 * Create a set of corpus scores
@@ -42,7 +47,7 @@ public class CorpusScorer {
 	 * @param scorerFactory
 	 *            specification of the scoring method, e.g. {@link BCubed}
 	 */
-	public CorpusScorer(CoreferenceScorerFactory<List<Integer>> scorerFactory) {
+	public CorpusScorer(CoreferenceScorerFactory<List<Long>> scorerFactory) {
 		this.scorerFactory = scorerFactory;
 	}
 
@@ -56,7 +61,8 @@ public class CorpusScorer {
 	 * @return precision/recall scores for this document
 	 */
 	public PrecisionRecall scoreDocument(Document document) {
-		return scoreDocument(document, DEFAULT_MATCH_FEATURE, DEFAULT_KEY_NAME,
+		return scoreDocument(document,
+				ANNIEConstants.DOCUMENT_COREF_FEATURE_NAME, DEFAULT_KEY_NAME,
 				null);
 	}
 
@@ -85,14 +91,15 @@ public class CorpusScorer {
 		}
 
 		// Extract the coreference information.
-		FeatureMap matchIDsets = (FeatureMap) features.get(matchFeature);
-		Set<Set<List<Integer>>> key = getMatchSets(document, matchIDsets,
-				keyName);
-		Set<Set<List<Integer>>> response = getMatchSets(document, matchIDsets,
+		@SuppressWarnings("unchecked")
+		Map<String, Collection<Collection<Integer>>> matchIDsets = (Map<String, Collection<Collection<Integer>>>) features
+				.get(matchFeature);
+		Set<Set<List<Long>>> key = getMatchSets(document, matchIDsets, keyName);
+		Set<Set<List<Long>>> response = getMatchSets(document, matchIDsets,
 				responseName);
 
 		// Generate score.
-		CoreferenceScorer<List<Integer>> scorer = scorerFactory.getScorer(
+		CoreferenceScorer<List<Long>> scorer = scorerFactory.getScorer(
 				CoreferenceScorerFactory.Method.BCUBED, key);
 		double[] scores = scorer.score(response);
 		return new PrecisionRecall(scores[0], scores[1]);
@@ -106,7 +113,7 @@ public class CorpusScorer {
 	 * 
 	 * @param document
 	 *            GATE document
-	 * @param matchIDsets
+	 * @param matchIDs
 	 *            matching annotation IDs, e.g. from the MatchesAnnots feature
 	 *            of a document
 	 * @param annotationSet
@@ -114,23 +121,26 @@ public class CorpusScorer {
 	 * @return set of sets of (Start, End) offset pairs corresponding to the
 	 *         annotation IDs.
 	 */
-	private Set<Set<List<Integer>>> getMatchSets(Document document,
-			FeatureMap matchIDs, String annotationSet) {
-		Set<Set<List<Integer>>> matchOffsetSets = new HashSet<Set<List<Integer>>>();
+	private Set<Set<List<Long>>> getMatchSets(Document document,
+			Map<String, Collection<Collection<Integer>>> matchIDs,
+			String annotationSet) {
+		Set<Set<List<Long>>> matchOffsetSets = new HashSet<Set<List<Long>>>();
 
-		@SuppressWarnings("unchecked")
-		Set<Set<Integer>> matchIDsets = (Set<Set<Integer>>) matchIDs
+		Collection<Collection<Integer>> matchIDsets = matchIDs
 				.get(annotationSet);
 		AnnotationSet annotations = document.getAnnotations(annotationSet);
-		for (Set<Integer> matchIDset : matchIDsets) {
-			Set<List<Integer>> offsetSet = new HashSet<List<Integer>>();
+		for (Collection<Integer> matchIDset : matchIDsets) {
+			Set<List<Long>> offsetSet = new HashSet<List<Long>>();
 
 			for (Integer matchID : matchIDset) {
-				List<Integer> offsets = new ArrayList<Integer>();
+				List<Long> offsets = new ArrayList<Long>();
+				Long start = annotations.get(matchID).getStartNode()
+						.getOffset();
+				Long end = annotations.get(matchID).getEndNode().getOffset();
 
-				FeatureMap features = annotations.get(matchID).getFeatures();
-				offsets.add(0, (Integer) features.get("Start"));
-				offsets.add(1, (Integer) features.get("End"));
+				offsets.add(0, start);
+				offsets.add(1, end);
+				offsetSet.add(offsets);
 			}
 			matchOffsetSets.add(offsetSet);
 		}
@@ -147,12 +157,16 @@ public class CorpusScorer {
 	 * @throws GateException
 	 */
 	public static void main(String[] args) throws GateException {
+		BasicConfigurator.configure();
+
 		String dataStorePath = args[0];
 		String corpusName = args[1];
 
+		Gate.init();
+
 		// Create the scorer.
 		CorpusScorer scorer = new CorpusScorer(
-				new CoreferenceScorerFactory<List<Integer>>());
+				new CoreferenceScorerFactory<List<Long>>());
 
 		// Open the data store.
 		DataStore dataStore = Factory.openDataStore(
@@ -164,13 +178,14 @@ public class CorpusScorer {
 			Corpus corpus = Datastore.loadCorpusFromDatastore(dataStore,
 					corpusName);
 			try {
-				// Iterate over documents in the corpus collecting counts.
+				// Iterate over documents in the corpus and score them.
 				@SuppressWarnings("rawtypes")
 				Iterator iterator = corpus.iterator();
 				while (iterator.hasNext()) {
 					Document document = (Document) iterator.next();
 					PrecisionRecall score = scorer.scoreDocument(document);
-					System.out.format("%s: %s", document.getName(), score);
+					if (null != score)
+						System.out.format("%s: %s", document.getName(), score);
 				}
 			} finally {
 				Factory.deleteResource(corpus);
@@ -178,6 +193,5 @@ public class CorpusScorer {
 		} finally {
 			dataStore.close();
 		}
-
 	}
 }

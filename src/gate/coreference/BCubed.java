@@ -49,9 +49,11 @@ public class BCubed<T> implements CoreferenceScorer<T> {
 	 * @return precision
 	 */
 	private float precision(T element, Map<T, Set<T>> responseTable) {
-		Set<T> response = responseTable.get(element);
-		float precision = intersection(keyTable.get(element), response).size();
-		precision /= response.size();
+		Set<T> key = getTableSet(element, keyTable);
+		Set<T> response = getTableSet(element, responseTable);
+		float precision = intersection(key, response).size();
+		int denominator = response.size();
+		precision = denominator > 0 ? precision / denominator : 0;
 		return precision;
 	}
 
@@ -65,9 +67,11 @@ public class BCubed<T> implements CoreferenceScorer<T> {
 	 * @return recall
 	 */
 	private float recall(T element, Map<T, Set<T>> responseTable) {
-		Set<T> key = keyTable.get(element);
-		float recall = intersection(key, responseTable.get(element)).size();
-		recall /= key.size();
+		Set<T> key = getTableSet(element, keyTable);
+		Set<T> response = getTableSet(element, responseTable);
+		float recall = intersection(key, response).size();
+		int denominator = key.size();
+		recall = denominator > 0 ? recall / key.size() : 0;
 		return recall;
 	}
 
@@ -86,6 +90,20 @@ public class BCubed<T> implements CoreferenceScorer<T> {
 				table.put(item, set);
 			}
 		return table;
+	}
+
+	/**
+	 * Lookup a set in the specified table
+	 * 
+	 * @param element
+	 *            the element to look up
+	 * @param table
+	 *            table of elements to sets
+	 * @return the set corresponding to the element
+	 */
+	private Set<T> getTableSet(T element, Map<T, Set<T>> table) {
+		return table.containsKey(element) ? table.get(element)
+				: new HashSet<T>();
 	}
 
 	/**

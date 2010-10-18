@@ -32,6 +32,18 @@ public class CoreferenceScoringTest {
 		assertEquals(1, scores[1], 1e-05);
 	}
 
+	@Test
+	public void testBCubedNoOverlap() {
+		int[][] responseValues = { { 13, 14, 15 } };
+		Set<Set<Integer>> response = createPartition(responseValues);
+		double[] scores = bcubed.score(response);
+		// Precision
+		assertEquals(0, scores[0], 1e-05);
+		// Recall
+		assertEquals(0, scores[1], 1e-05);
+
+	}
+
 	private Set<Set<Integer>> createPartition(int[][] valueSets) {
 		Set<Set<Integer>> partition = new HashSet<Set<Integer>>();
 		for (int[] valueSet : valueSets) {
