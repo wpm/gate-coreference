@@ -11,7 +11,7 @@ import java.util.Set;
  * 
  * @author <a href="mailto:billmcn@gmail.com">W.P. McNeill</a>
  */
-public class MUC<T> extends SetScorer<T> implements CoreferenceScorer<T> {
+public class MUC<T> implements CoreferenceScorer<T> {
 
 	private Set<Set<T>> key;
 
@@ -25,7 +25,6 @@ public class MUC<T> extends SetScorer<T> implements CoreferenceScorer<T> {
 
 	@Override
 	public double[] score(Set<Set<T>> response) {
-		// TODO Auto-generated method stub
 		double[] scores = { 0.0, 0.0 };
 		scores[0] = MUCscore(key, response);
 		scores[1] = MUCscore(response, key);
@@ -36,15 +35,15 @@ public class MUC<T> extends SetScorer<T> implements CoreferenceScorer<T> {
 		double score = 0.0;
 		Set<T> responseUnion = new HashSet<T>();
 		for (Set<T> responseSet : responseSets)
-			responseUnion = union(responseUnion, responseSet);
+			responseUnion.addAll(responseSet);
 		for (Set<T> keySet : keySets) {
 			int num = 0;
 			for (Set<T> responseSet : responseSets)
-				num += intersection(keySet, responseSet).size() - 1;
+				num += SetUtilities.intersection(keySet, responseSet).size() - 1;
 			// Implicit partitions for elements not in the response.
-			num += difference(keySet, responseUnion).size();
+			num += SetUtilities.difference(keySet, responseUnion).size();
 			double den = keySet.size() - 1;
-			score += num/den; 
+			score += num / den;
 		}
 		return score;
 	}

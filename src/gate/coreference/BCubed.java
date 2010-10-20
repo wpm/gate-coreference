@@ -13,7 +13,7 @@ import java.util.Set;
  * 
  * @author <a href="mailto:billmcn@gmail.com">W.P. McNeill</a>
  */
-public class BCubed<T> extends SetScorer<T> implements CoreferenceScorer<T> {
+public class BCubed<T> implements CoreferenceScorer<T> {
 
 	final private Map<T, Set<T>> keyTable;
 
@@ -29,7 +29,8 @@ public class BCubed<T> extends SetScorer<T> implements CoreferenceScorer<T> {
 	public double[] score(Set<Set<T>> response) {
 		double[] scores = { 0.0, 0.0 };
 		Map<T, Set<T>> responseTable = buildTable(response);
-		Set<T> domain = union(keyTable.keySet(), responseTable.keySet());
+		Set<T> domain = SetUtilities.union(keyTable.keySet(),
+				responseTable.keySet());
 		for (T element : domain) {
 			scores[0] += precision(element, responseTable);
 			scores[1] += recall(element, responseTable);
@@ -51,7 +52,7 @@ public class BCubed<T> extends SetScorer<T> implements CoreferenceScorer<T> {
 	private float precision(T element, Map<T, Set<T>> responseTable) {
 		Set<T> key = getTableSet(element, keyTable);
 		Set<T> response = getTableSet(element, responseTable);
-		float precision = intersection(key, response).size();
+		float precision = SetUtilities.intersection(key, response).size();
 		int denominator = response.size();
 		precision = denominator > 0 ? precision / denominator : 0;
 		return precision;
@@ -69,7 +70,7 @@ public class BCubed<T> extends SetScorer<T> implements CoreferenceScorer<T> {
 	private float recall(T element, Map<T, Set<T>> responseTable) {
 		Set<T> key = getTableSet(element, keyTable);
 		Set<T> response = getTableSet(element, responseTable);
-		float recall = intersection(key, response).size();
+		float recall = SetUtilities.intersection(key, response).size();
 		int denominator = key.size();
 		recall = denominator > 0 ? recall / key.size() : 0;
 		return recall;
