@@ -11,7 +11,7 @@ import java.util.Set;
  * 
  * @author <a href="mailto:billmcn@gmail.com">W.P. McNeill</a>
  */
-public class MUC<T> implements CoreferenceScorer<T> {
+public class MUC<T> implements EquivalenceSetScorer<T> {
 
 	private Set<Set<T>> key;
 

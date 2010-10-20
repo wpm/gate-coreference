@@ -13,7 +13,7 @@ import java.util.Set;
  * 
  * @author <a href="mailto:billmcn@gmail.com">W.P. McNeill</a>
  */
-public class BCubed<T> implements CoreferenceScorer<T> {
+public class BCubed<T> implements EquivalenceSetScorer<T> {
 
 	final private Map<T, Set<T>> keyTable;
 

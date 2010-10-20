@@ -3,14 +3,15 @@ package gate.coreference;
 import java.util.Set;
 
 /**
- * Coreference scorer
+ * Framework for generating a score that measures the similarity of two
+ * equivalence sets.
  * 
  * @param T
- *            objects in coreference sets
+ *            type of objects in equivalence sets
  * 
  * @author <a href="mailto:billmcn@gmail.com">W.P. McNeill</a>
  */
-public interface CoreferenceScorer<T> {
+public interface EquivalenceSetScorer<T> {
 
 	/**
 	 * Return precision and recall scores for a partitioning

@@ -39,7 +39,7 @@ public class CorpusScorer {
 	/**
 	 * Scoring is done over sets of (Start, End) offset pairs.
 	 */
-	private CoreferenceScorerFactory<List<Long>> scorerFactory;
+	private EquivalenceSetScorerFactory<List<Long>> scorerFactory;
 
 	/**
 	 * Create a set of corpus scores
@@ -47,7 +47,7 @@ public class CorpusScorer {
 	 * @param scorerFactory
 	 *            specification of the scoring method, e.g. {@link BCubed}
 	 */
-	public CorpusScorer(CoreferenceScorerFactory<List<Long>> scorerFactory) {
+	public CorpusScorer(EquivalenceSetScorerFactory<List<Long>> scorerFactory) {
 		this.scorerFactory = scorerFactory;
 	}
 
@@ -99,8 +99,8 @@ public class CorpusScorer {
 				responseName);
 
 		// Generate score.
-		CoreferenceScorer<List<Long>> scorer = scorerFactory.getScorer(
-				CoreferenceScorerFactory.Method.BCUBED, key);
+		EquivalenceSetScorer<List<Long>> scorer = scorerFactory.getScorer(
+				EquivalenceSetScorerFactory.Method.BCUBED, key);
 		double[] scores = scorer.score(response);
 		return new PrecisionRecall(scores[0], scores[1]);
 	}
@@ -166,7 +166,7 @@ public class CorpusScorer {
 
 		// Create the scorer.
 		CorpusScorer scorer = new CorpusScorer(
-				new CoreferenceScorerFactory<List<Long>>());
+				new EquivalenceSetScorerFactory<List<Long>>());
 
 		// Open the data store.
 		DataStore dataStore = Factory.openDataStore(
