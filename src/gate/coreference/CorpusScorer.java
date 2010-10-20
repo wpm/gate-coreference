@@ -10,6 +10,7 @@ import gate.Document;
 import gate.Factory;
 import gate.FeatureMap;
 import gate.Gate;
+import gate.coreference.EquivalenceSetScorerFactory.Method;
 import gate.creole.ANNIEConstants;
 import gate.util.GateException;
 
@@ -60,10 +61,10 @@ public class CorpusScorer {
 	 *            document to score
 	 * @return precision/recall scores for this document
 	 */
-	public PrecisionRecall scoreDocument(Document document) {
+	public PrecisionRecall scoreDocument(Document document, Method method) {
 		return scoreDocument(document,
 				ANNIEConstants.DOCUMENT_COREF_FEATURE_NAME, DEFAULT_KEY_NAME,
-				null);
+				null, method);
 	}
 
 	/**
@@ -81,7 +82,8 @@ public class CorpusScorer {
 	 * @return precision/recall scores for this document
 	 */
 	public PrecisionRecall scoreDocument(Document document,
-			String matchFeature, String keyName, String responseName) {
+			String matchFeature, String keyName, String responseName,
+			Method method) {
 		FeatureMap features = document.getFeatures();
 
 		// Documents without coreference information get a null score.
@@ -100,7 +102,7 @@ public class CorpusScorer {
 
 		// Generate score.
 		EquivalenceSetScorer<List<Long>> scorer = scorerFactory.getScorer(
-				EquivalenceSetScorerFactory.Method.BCUBED, key);
+				method, key);
 		double[] scores = scorer.score(response);
 		return new PrecisionRecall(scores[0], scores[1]);
 	}
@@ -182,10 +184,18 @@ public class CorpusScorer {
 				@SuppressWarnings("rawtypes")
 				Iterator iterator = corpus.iterator();
 				while (iterator.hasNext()) {
+					PrecisionRecall score;
 					Document document = (Document) iterator.next();
-					PrecisionRecall score = scorer.scoreDocument(document);
+					score = scorer.scoreDocument(document,
+							EquivalenceSetScorerFactory.Method.BCUBED);
 					if (null != score)
-						System.out.format("%s: %s", document.getName(), score);
+						System.out.format("%s: B-Cubed %s\n",
+								document.getName(), score);
+					score = scorer.scoreDocument(document,
+							EquivalenceSetScorerFactory.Method.MUC);
+					if (null != score)
+						System.out.format("%s: MUC %s\n", document.getName(),
+								score);
 				}
 			} finally {
 				Factory.deleteResource(corpus);
