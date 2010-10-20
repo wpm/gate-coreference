@@ -22,8 +22,7 @@ public class SetUtilities {
 	 * @return union of a and b
 	 */
 	static public <T> Set<T> union(Set<T> a, Set<T> b) {
-		Set<T> union = new HashSet<T>();
-		union.addAll(a);
+		Set<T> union = new HashSet<T>(a);
 		union.addAll(b);
 		return union;
 	}
@@ -40,8 +39,7 @@ public class SetUtilities {
 	 * @return intersection of a and b
 	 */
 	static public <T> Set<T> intersection(Set<T> a, Set<T> b) {
-		Set<T> intersection = new HashSet<T>();
-		intersection.addAll(a);
+		Set<T> intersection = new HashSet<T>(a);
 		intersection.retainAll(b);
 		return intersection;
 	}
@@ -58,8 +56,7 @@ public class SetUtilities {
 	 * @return all the elements of a not in b
 	 */
 	static public <T> Set<T> difference(Set<T> a, Set<T> b) {
-		Set<T> difference = new HashSet<T>();
-		difference.addAll(a);
+		Set<T> difference = new HashSet<T>(a);
 		difference.removeAll(b);
 		return difference;
 	}
