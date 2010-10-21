@@ -19,9 +19,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.log4j.BasicConfigurator;
@@ -35,21 +35,38 @@ public class CorpusScorer {
 
 	final private static String DEFAULT_KEY_NAME = "Key";
 
-	private Map<Document, PrecisionRecall> score = new HashMap<Document, PrecisionRecall>();
+	final Map<Document, Map<Method, PrecisionRecall>> scores;
 
 	/**
 	 * Scoring is done over sets of (Start, End) offset pairs.
 	 */
-	private EquivalenceClassScorerFactory<List<Long>> scorerFactory;
+	private EquivalenceClassScorerFactory<List<Long>> scorerFactory = new EquivalenceClassScorerFactory<List<Long>>();
 
 	/**
-	 * Create a set of corpus scores
-	 * 
-	 * @param scorerFactory
-	 *            specification of the scoring method, e.g. {@link BCubed}
+	 * @param corpus
+	 *            corpus to score
+	 * @param methods
+	 *            scoring methods, e.g. B-Cubed or MUC
 	 */
-	public CorpusScorer(EquivalenceClassScorerFactory<List<Long>> scorerFactory) {
-		this.scorerFactory = scorerFactory;
+	public CorpusScorer(Corpus corpus, Set<Method> methods) {
+		scores = new HashMap<Document, Map<Method, PrecisionRecall>>();
+		for (Object object : corpus) {
+			Document document = (Document) object;
+			if (!scores.containsKey(document))
+				scores.put(document, new HashMap<Method, PrecisionRecall>());
+			Map<Method, PrecisionRecall> documentScores = scores.get(document);
+			for (Method method : methods) {
+				PrecisionRecall score = scoreDocument(document, method);
+				documentScores.put(method, score);
+			}
+		}
+	}
+
+	/**
+	 * @return the scores
+	 */
+	public Map<Document, Map<Method, PrecisionRecall>> getScores() {
+		return scores;
 	}
 
 	/**
@@ -61,7 +78,7 @@ public class CorpusScorer {
 	 *            document to score
 	 * @return precision/recall scores for this document
 	 */
-	public PrecisionRecall scoreDocument(Document document, Method method) {
+	private PrecisionRecall scoreDocument(Document document, Method method) {
 		return scoreDocument(document,
 				ANNIEConstants.DOCUMENT_COREF_FEATURE_NAME, DEFAULT_KEY_NAME,
 				null, method);
@@ -81,16 +98,14 @@ public class CorpusScorer {
 	 *            e.g. null
 	 * @return precision/recall scores for this document
 	 */
-	public PrecisionRecall scoreDocument(Document document,
+	private PrecisionRecall scoreDocument(Document document,
 			String matchFeature, String keyName, String responseName,
 			Method method) {
 		FeatureMap features = document.getFeatures();
 
 		// Documents without coreference information get a null score.
-		if (!features.containsKey(matchFeature)) {
-			score.put(document, null);
+		if (!features.containsKey(matchFeature))
 			return null;
-		}
 
 		// Extract the coreference information.
 		@SuppressWarnings("unchecked")
@@ -167,8 +182,9 @@ public class CorpusScorer {
 		Gate.init();
 
 		// Create the scorer.
-		CorpusScorer scorer = new CorpusScorer(
-				new EquivalenceClassScorerFactory<List<Long>>());
+		Set<Method> methods = new HashSet<Method>();
+		methods.add(EquivalenceClassScorerFactory.Method.MUC);
+		methods.add(EquivalenceClassScorerFactory.Method.BCUBED);
 
 		// Open the data store.
 		DataStore dataStore = Factory.openDataStore(
@@ -180,21 +196,24 @@ public class CorpusScorer {
 			Corpus corpus = Datastore.loadCorpusFromDatastore(dataStore,
 					corpusName);
 			try {
-				// Iterate over documents in the corpus and score them.
-				@SuppressWarnings("rawtypes")
-				Iterator iterator = corpus.iterator();
-				while (iterator.hasNext()) {
-					PrecisionRecall score;
-					Document document = (Document) iterator.next();
+				CorpusScorer scorer = new CorpusScorer(corpus, methods);
+				Map<Document, Map<Method, PrecisionRecall>> corpusScores = scorer
+						.getScores();
+				for (Entry<Document, Map<Method, PrecisionRecall>> documentScores : corpusScores
+						.entrySet()) {
+					Document document = documentScores.getKey();
+					Map<Method, PrecisionRecall> scores = documentScores
+							.getValue();
+
 					System.out.println(document.getName());
-					score = scorer.scoreDocument(document,
-							EquivalenceClassScorerFactory.Method.BCUBED);
-					if (null != score)
-						System.out.format("B-Cubed %s\n", score);
-					score = scorer.scoreDocument(document,
-							EquivalenceClassScorerFactory.Method.MUC);
-					if (null != score)
-						System.out.format("MUC %s\n", score);
+					PrecisionRecall mucScore = scores
+							.get(EquivalenceClassScorerFactory.Method.MUC);
+					if (null != mucScore)
+						System.out.format("MUC %s\n", mucScore);
+					PrecisionRecall bcubedScore = scores
+							.get(EquivalenceClassScorerFactory.Method.BCUBED);
+					if (null != bcubedScore)
+						System.out.format("B-Cubed %s\n", bcubedScore);
 				}
 			} finally {
 				Factory.deleteResource(corpus);
