@@ -18,7 +18,7 @@ import java.util.Set;
  * 
  * @author <a href="mailto:billmcn@gmail.com">W.P. McNeill</a>
  */
-public class EquivalenceSetScoringTest {
+public class EquivalenceClassScoringTest {
 
 	private static final double TOLERANCE = 1e-6;
 	private BCubed<Integer> bcubed;

@@ -8,14 +8,14 @@ import java.util.Set;
 /**
  * @author <a href="mailto:billmcn@gmail.com">W.P. McNeill</a>
  */
-public class EquivalenceSetScorerFactory<T> {
+public class EquivalenceClassScorerFactory<T> {
 
 	public static enum Method {
 		BCUBED, MUC
 	};
 
-	public EquivalenceSetScorer<T> getScorer(Method method, Set<Set<T>> key) {
-		EquivalenceSetScorer<T> scorer;
+	public EquivalenceClassScorer<T> getScorer(Method method, Set<Set<T>> key) {
+		EquivalenceClassScorer<T> scorer;
 
 		switch (method) {
 		case MUC:

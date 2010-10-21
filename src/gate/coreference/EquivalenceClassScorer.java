@@ -4,14 +4,14 @@ import java.util.Set;
 
 /**
  * Framework for generating a score that measures the similarity of two
- * equivalence sets.
+ * equivalence classes.
  * 
  * @param T
  *            type of objects in equivalence sets
  * 
  * @author <a href="mailto:billmcn@gmail.com">W.P. McNeill</a>
  */
-public interface EquivalenceSetScorer<T> {
+public interface EquivalenceClassScorer<T> {
 
 	/**
 	 * Return precision and recall scores for a partitioning

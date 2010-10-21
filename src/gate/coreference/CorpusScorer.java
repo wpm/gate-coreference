@@ -10,7 +10,7 @@ import gate.Document;
 import gate.Factory;
 import gate.FeatureMap;
 import gate.Gate;
-import gate.coreference.EquivalenceSetScorerFactory.Method;
+import gate.coreference.EquivalenceClassScorerFactory.Method;
 import gate.creole.ANNIEConstants;
 import gate.util.GateException;
 
@@ -40,7 +40,7 @@ public class CorpusScorer {
 	/**
 	 * Scoring is done over sets of (Start, End) offset pairs.
 	 */
-	private EquivalenceSetScorerFactory<List<Long>> scorerFactory;
+	private EquivalenceClassScorerFactory<List<Long>> scorerFactory;
 
 	/**
 	 * Create a set of corpus scores
@@ -48,7 +48,7 @@ public class CorpusScorer {
 	 * @param scorerFactory
 	 *            specification of the scoring method, e.g. {@link BCubed}
 	 */
-	public CorpusScorer(EquivalenceSetScorerFactory<List<Long>> scorerFactory) {
+	public CorpusScorer(EquivalenceClassScorerFactory<List<Long>> scorerFactory) {
 		this.scorerFactory = scorerFactory;
 	}
 
@@ -101,7 +101,7 @@ public class CorpusScorer {
 				responseName);
 
 		// Generate score.
-		EquivalenceSetScorer<List<Long>> scorer = scorerFactory.getScorer(
+		EquivalenceClassScorer<List<Long>> scorer = scorerFactory.getScorer(
 				method, key);
 		double[] scores = scorer.score(response);
 		return new PrecisionRecall(scores[0], scores[1]);
@@ -168,7 +168,7 @@ public class CorpusScorer {
 
 		// Create the scorer.
 		CorpusScorer scorer = new CorpusScorer(
-				new EquivalenceSetScorerFactory<List<Long>>());
+				new EquivalenceClassScorerFactory<List<Long>>());
 
 		// Open the data store.
 		DataStore dataStore = Factory.openDataStore(
@@ -188,11 +188,11 @@ public class CorpusScorer {
 					Document document = (Document) iterator.next();
 					System.out.println(document.getName());
 					score = scorer.scoreDocument(document,
-							EquivalenceSetScorerFactory.Method.BCUBED);
+							EquivalenceClassScorerFactory.Method.BCUBED);
 					if (null != score)
 						System.out.format("B-Cubed %s\n", score);
 					score = scorer.scoreDocument(document,
-							EquivalenceSetScorerFactory.Method.MUC);
+							EquivalenceClassScorerFactory.Method.MUC);
 					if (null != score)
 						System.out.format("MUC %s\n", score);
 				}
