@@ -186,16 +186,15 @@ public class CorpusScorer {
 				while (iterator.hasNext()) {
 					PrecisionRecall score;
 					Document document = (Document) iterator.next();
+					System.out.println(document.getName());
 					score = scorer.scoreDocument(document,
 							EquivalenceSetScorerFactory.Method.BCUBED);
 					if (null != score)
-						System.out.format("%s: B-Cubed %s\n",
-								document.getName(), score);
+						System.out.format("B-Cubed %s\n", score);
 					score = scorer.scoreDocument(document,
 							EquivalenceSetScorerFactory.Method.MUC);
 					if (null != score)
-						System.out.format("%s: MUC %s\n", document.getName(),
-								score);
+						System.out.format("MUC %s\n", score);
 				}
 			} finally {
 				Factory.deleteResource(corpus);
