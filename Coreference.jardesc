@@ -11,9 +11,8 @@
         </sealing>
     </manifest>
     <selectedElements exportClassFiles="true" exportJavaFiles="false" exportOutputFolder="false">
-        <javaElement handleIdentifier="=Coreference/src"/>
-        <javaElement handleIdentifier="=Coreference/test"/>
         <file path="/Coreference/creole.xml"/>
-        <folder path="/Coreference/doc"/>
+        <javaElement handleIdentifier="=Coreference/test"/>
+        <javaElement handleIdentifier="=Coreference/src"/>
     </selectedElements>
 </jardesc>

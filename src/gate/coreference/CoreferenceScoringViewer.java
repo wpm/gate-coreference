@@ -1,5 +1,12 @@
 package gate.coreference;
 
+import java.awt.BorderLayout;
+import java.text.Collator;
+import java.util.Locale;
+
+import javax.swing.JScrollPane;
+import javax.swing.table.DefaultTableModel;
+
 import org.apache.log4j.Logger;
 
 import gate.Corpus;
@@ -10,6 +17,7 @@ import gate.creole.metadata.CreoleResource;
 import gate.creole.metadata.GuiType;
 import gate.event.CorpusEvent;
 import gate.event.CorpusListener;
+import gate.swing.XJTable;
 
 /**
  * @author <a href="mailto:billmcn@gmail.com">W.P. McNeill</a>
@@ -25,20 +33,45 @@ public class CoreferenceScoringViewer extends AbstractVisualResource implements
 
 	private Corpus corpus;
 
+	private Collator collator;
+
+	private DefaultTableModel documentTableModel;
+
+	private XJTable documentTable;
+
 	@Override
 	public Resource init() throws ResourceInstantiationException {
 		logger.info("Initialize coreference viewer");
+		initModel();
+		initViewer();
 		return super.init();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see gate.creole.AbstractVisualResource#setTarget(java.lang.Object)
-	 */
+	private void initModel() {
+		collator = Collator.getInstance(Locale.ENGLISH);
+		collator.setStrength(Collator.TERTIARY);
+		documentTableModel = new DefaultTableModel();
+		documentTableModel.addColumn("Document");
+		documentTableModel.addColumn("B-Cubed");
+		documentTableModel.addColumn("MUC");
+	}
+
+	private void initViewer() {
+		setLayout(new BorderLayout());
+		documentTable = new XJTable() {
+			public boolean isCellEditable(int rowIndex, int colIndex) {
+				return false;
+			}
+		};
+		documentTable.setModel(documentTableModel);
+		documentTable.setSortable(false);
+		documentTable.setEnableHidingColumns(true);
+		documentTable.setAutoResizeMode(XJTable.AUTO_RESIZE_ALL_COLUMNS);
+		add(new JScrollPane(documentTable));
+	}
+
 	@Override
 	public void setTarget(Object target) {
-		// TODO Auto-generated method stub
 		logger.info("Set target " + target.toString());
 		if (null != corpus && corpus != target)
 			corpus.removeCorpusListener(this);
@@ -47,25 +80,13 @@ public class CoreferenceScoringViewer extends AbstractVisualResource implements
 		corpusUpdated();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see gate.event.CorpusListener#documentAdded(gate.event.CorpusEvent)
-	 */
 	@Override
 	public void documentAdded(CorpusEvent e) {
-		// TODO Auto-generated method stub
 		logger.info("Document added " + e.toString());
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see gate.event.CorpusListener#documentRemoved(gate.event.CorpusEvent)
-	 */
 	@Override
 	public void documentRemoved(CorpusEvent e) {
-		// TODO Auto-generated method stub
 		logger.info("Document removed " + e.toString());
 	}
 
