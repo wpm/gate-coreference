@@ -181,7 +181,7 @@ public class CorpusScorer {
 
 		Gate.init();
 
-		// Create the scorer.
+		// Use both scoring methods.
 		Set<Method> methods = new HashSet<Method>();
 		methods.add(EquivalenceClassScorerFactory.Method.MUC);
 		methods.add(EquivalenceClassScorerFactory.Method.BCUBED);
@@ -209,11 +209,11 @@ public class CorpusScorer {
 					PrecisionRecall mucScore = scores
 							.get(EquivalenceClassScorerFactory.Method.MUC);
 					if (null != mucScore)
-						System.out.format("MUC %s\n", mucScore);
-					PrecisionRecall bcubedScore = scores
+						System.out.format("MUC: %s\n", mucScore);
+					PrecisionRecall bCubedScore = scores
 							.get(EquivalenceClassScorerFactory.Method.BCUBED);
-					if (null != bcubedScore)
-						System.out.format("B-Cubed %s\n", bcubedScore);
+					if (null != bCubedScore)
+						System.out.format("B-Cubed: %s\n", bCubedScore);
 				}
 			} finally {
 				Factory.deleteResource(corpus);

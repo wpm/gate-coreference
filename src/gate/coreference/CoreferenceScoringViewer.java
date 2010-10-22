@@ -2,7 +2,12 @@ package gate.coreference;
 
 import java.awt.BorderLayout;
 import java.text.Collator;
+import java.util.HashSet;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+import java.util.Map.Entry;
+import java.util.Vector;
 
 import javax.swing.JScrollPane;
 import javax.swing.table.DefaultTableModel;
@@ -10,7 +15,9 @@ import javax.swing.table.DefaultTableModel;
 import org.apache.log4j.Logger;
 
 import gate.Corpus;
+import gate.Document;
 import gate.Resource;
+import gate.coreference.EquivalenceClassScorerFactory.Method;
 import gate.creole.AbstractVisualResource;
 import gate.creole.ResourceInstantiationException;
 import gate.creole.metadata.CreoleResource;
@@ -94,7 +101,38 @@ public class CoreferenceScoringViewer extends AbstractVisualResource implements
 	 * 
 	 */
 	private void corpusUpdated() {
-		// TODO Auto-generated method stub
+		// Use both scoring methods.
+		Set<Method> methods = new HashSet<Method>();
+		methods.add(EquivalenceClassScorerFactory.Method.MUC);
+		methods.add(EquivalenceClassScorerFactory.Method.BCUBED);
+
+		CorpusScorer scorer = new CorpusScorer(corpus, methods);
+
+		Map<Document, Map<Method, PrecisionRecall>> corpusScores = scorer
+				.getScores();
+		for (Entry<Document, Map<Method, PrecisionRecall>> documentScores : corpusScores
+				.entrySet()) {
+			Document document = documentScores.getKey();
+			Map<Method, PrecisionRecall> scores = documentScores.getValue();
+
+			Vector<Object> rowData = new Vector<Object>();
+			rowData.add(document.getName());
+
+			PrecisionRecall bCubedScore = scores
+					.get(EquivalenceClassScorerFactory.Method.BCUBED);
+			if (null != bCubedScore)
+				rowData.add(bCubedScore.toString());
+			else
+				rowData.add(null);
+			PrecisionRecall mucScore = scores
+					.get(EquivalenceClassScorerFactory.Method.MUC);
+			if (null != mucScore)
+				rowData.add(mucScore.toString());
+			else
+				rowData.add(null);
+
+			documentTableModel.addRow(rowData);
+		}
 	}
 
 }
