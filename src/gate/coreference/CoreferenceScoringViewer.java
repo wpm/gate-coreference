@@ -33,6 +33,10 @@ import gate.swing.XJTable;
 public class CoreferenceScoringViewer extends AbstractVisualResource implements
 		CorpusListener {
 
+	private final Method[] scoreColumns = {
+			EquivalenceClassScorerFactory.Method.BCUBED,
+			EquivalenceClassScorerFactory.Method.MUC };
+
 	static Logger logger = Logger.getLogger(CoreferenceScoringViewer.class
 			.getName());
 
@@ -60,6 +64,7 @@ public class CoreferenceScoringViewer extends AbstractVisualResource implements
 	private void initViewer() {
 		setLayout(new BorderLayout());
 		documentTable = new XJTable() {
+			@Override
 			public boolean isCellEditable(int rowIndex, int colIndex) {
 				return false;
 			}
@@ -84,11 +89,13 @@ public class CoreferenceScoringViewer extends AbstractVisualResource implements
 	@Override
 	public void documentAdded(CorpusEvent e) {
 		logger.info("Document added " + e.toString());
+		corpusUpdated();
 	}
 
 	@Override
 	public void documentRemoved(CorpusEvent e) {
 		logger.info("Document removed " + e.toString());
+		corpusUpdated();
 	}
 
 	/**
@@ -112,18 +119,13 @@ public class CoreferenceScoringViewer extends AbstractVisualResource implements
 			Vector<Object> rowData = new Vector<Object>();
 			rowData.add(document.getName());
 
-			PrecisionRecall bCubedScore = scores
-					.get(EquivalenceClassScorerFactory.Method.BCUBED);
-			if (null != bCubedScore)
-				rowData.add(bCubedScore.toString());
-			else
-				rowData.add(null);
-			PrecisionRecall mucScore = scores
-					.get(EquivalenceClassScorerFactory.Method.MUC);
-			if (null != mucScore)
-				rowData.add(mucScore.toString());
-			else
-				rowData.add(null);
+			for (int i = 0; i < scoreColumns.length; i++) {
+				PrecisionRecall score = scores.get(scoreColumns[i]);
+				if (null != score)
+					rowData.add(score.toString());
+				else
+					rowData.add(null);
+			}
 
 			documentTableModel.addRow(rowData);
 		}
