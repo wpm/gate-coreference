@@ -15,14 +15,18 @@ import gate.creole.ANNIEConstants;
 import gate.util.GateException;
 
 import java.io.File;
+import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.TreeMap;
 
 import org.apache.log4j.BasicConfigurator;
 
@@ -35,10 +39,29 @@ public class CorpusScorer {
 
 	final private static String DEFAULT_KEY_NAME = "Key";
 
+	/**
+	 * Order the documents in the table by name.
+	 */
+	public class DocumentCollator implements Comparator<Document> {
+		final private Collator collator;
+
+		public DocumentCollator() {
+			collator = Collator.getInstance(Locale.getDefault());
+			collator.setStrength(Collator.TERTIARY);
+		}
+
+		@Override
+		public int compare(Document d1, Document d2) {
+			return collator.compare(d1.getName(), d2.getName());
+		}
+
+	}
+
 	final Map<Document, Map<Method, PrecisionRecall>> scores;
 
 	/**
-	 * Scoring is done over sets of (Start, End) offset pairs.
+	 * Scoring is done over sets of (Start, End) offset pairs which are stored
+	 * as lists of long values.
 	 */
 	private EquivalenceClassScorerFactory<List<Long>> scorerFactory = new EquivalenceClassScorerFactory<List<Long>>();
 
@@ -49,7 +72,8 @@ public class CorpusScorer {
 	 *            scoring methods, e.g. B-Cubed or MUC
 	 */
 	public CorpusScorer(Corpus corpus, Set<Method> methods) {
-		scores = new HashMap<Document, Map<Method, PrecisionRecall>>();
+		scores = new TreeMap<Document, Map<Method, PrecisionRecall>>(
+				new DocumentCollator());
 		for (Object object : corpus) {
 			Document document = (Document) object;
 			if (!scores.containsKey(document))

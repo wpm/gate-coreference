@@ -1,9 +1,7 @@
 package gate.coreference;
 
 import java.awt.BorderLayout;
-import java.text.Collator;
 import java.util.HashSet;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
@@ -40,8 +38,6 @@ public class CoreferenceScoringViewer extends AbstractVisualResource implements
 
 	private Corpus corpus;
 
-	private Collator collator;
-
 	private DefaultTableModel documentTableModel;
 
 	private XJTable documentTable;
@@ -55,8 +51,6 @@ public class CoreferenceScoringViewer extends AbstractVisualResource implements
 	}
 
 	private void initModel() {
-		collator = Collator.getInstance(Locale.ENGLISH);
-		collator.setStrength(Collator.TERTIARY);
 		documentTableModel = new DefaultTableModel();
 		documentTableModel.addColumn("Document");
 		documentTableModel.addColumn("B-Cubed");
@@ -98,7 +92,7 @@ public class CoreferenceScoringViewer extends AbstractVisualResource implements
 	}
 
 	/**
-	 * 
+	 * Update the scoring table model.
 	 */
 	private void corpusUpdated() {
 		// Use both scoring methods.
