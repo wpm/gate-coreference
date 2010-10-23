@@ -15,25 +15,16 @@ import java.util.Set;
  */
 public class BCubed<T> implements EquivalenceClassScorer<T> {
 
-	final private Map<T, Set<T>> keyTable;
-
-	/**
-	 * @param key
-	 *            key partitioning
-	 */
-	BCubed(Set<Set<T>> key) {
-		keyTable = buildTable(key);
-	}
-
 	@Override
-	public double[] score(Set<Set<T>> response) {
+	public double[] score(Set<Set<T>> key, Set<Set<T>> response) {
 		double[] scores = { 0.0, 0.0 };
+		Map<T, Set<T>> keyTable = buildTable(key);
 		Map<T, Set<T>> responseTable = buildTable(response);
 		Set<T> domain = SetUtilities.union(keyTable.keySet(),
 				responseTable.keySet());
 		for (T element : domain) {
-			scores[0] += precision(element, responseTable);
-			scores[1] += recall(element, responseTable);
+			scores[0] += precision(element, keyTable, responseTable);
+			scores[1] += recall(element, keyTable, responseTable);
 		}
 		scores[0] /= domain.size();
 		scores[1] /= domain.size();
@@ -45,11 +36,14 @@ public class BCubed<T> implements EquivalenceClassScorer<T> {
 	 * 
 	 * @param element
 	 *            element in the domain
+	 * @param keyTable
+	 *            table of elements to key sets
 	 * @param responseTable
 	 *            table of elements to response sets
 	 * @return precision
 	 */
-	private float precision(T element, Map<T, Set<T>> responseTable) {
+	private float precision(T element, Map<T, Set<T>> keyTable,
+			Map<T, Set<T>> responseTable) {
 		Set<T> key = getTableSet(element, keyTable);
 		Set<T> response = getTableSet(element, responseTable);
 		float precision = SetUtilities.intersection(key, response).size();
@@ -63,11 +57,14 @@ public class BCubed<T> implements EquivalenceClassScorer<T> {
 	 * 
 	 * @param element
 	 *            element in the domain
+	 * @param keyTable
+	 *            table of elements to key sets
 	 * @param responseTable
 	 *            table of elements to response sets
 	 * @return recall
 	 */
-	private float recall(T element, Map<T, Set<T>> responseTable) {
+	private float recall(T element, Map<T, Set<T>> keyTable,
+			Map<T, Set<T>> responseTable) {
 		Set<T> key = getTableSet(element, keyTable);
 		Set<T> response = getTableSet(element, responseTable);
 		float recall = SetUtilities.intersection(key, response).size();

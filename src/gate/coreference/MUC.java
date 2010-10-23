@@ -13,18 +13,8 @@ import java.util.Set;
  */
 public class MUC<T> implements EquivalenceClassScorer<T> {
 
-	private Set<Set<T>> key;
-
-	/**
-	 * @param key
-	 *            key partitioning
-	 */
-	MUC(Set<Set<T>> key) {
-		this.key = key;
-	}
-
 	@Override
-	public double[] score(Set<Set<T>> response) {
+	public double[] score(Set<Set<T>> key, Set<Set<T>> response) {
 		double[] scores = { 0.0, 0.0 };
 		scores[0] = MUCscore(key, response);
 		scores[1] = MUCscore(response, key);

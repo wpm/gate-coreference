@@ -141,8 +141,8 @@ public class CorpusScorer {
 
 		// Generate score.
 		EquivalenceClassScorer<List<Long>> scorer = scorerFactory.getScorer(
-				method, key);
-		double[] scores = scorer.score(response);
+				method);
+		double[] scores = scorer.score(key, response);
 		return new PrecisionRecall(scores[0], scores[1]);
 	}
 

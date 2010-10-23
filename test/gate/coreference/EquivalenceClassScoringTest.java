@@ -24,14 +24,14 @@ public class EquivalenceClassScoringTest {
 	private BCubed<Integer> bcubed;
 	private MUC<Integer> muc;
 
-	private Set<Set<Integer>> response;
+	private Set<Set<Integer>> key, response;
 
 	@Before
 	public void setUp() throws Exception {
 		int[][] keyValues = { { 1, 2, 3, 4, 5 }, { 6, 7 }, { 8, 9, 10, 11, 12 } };
-		Set<Set<Integer>> key = createEquivalenceSets(keyValues);
-		bcubed = new BCubed<Integer>(key);
-		muc = new MUC<Integer>(key);
+		key = createEquivalenceSets(keyValues);
+		bcubed = new BCubed<Integer>();
+		muc = new MUC<Integer>();
 		int[][] responseValues = { { 1, 2, 3, 4, 5 },
 				{ 6, 7, 8, 9, 10, 11, 12 } };
 		response = createEquivalenceSets(responseValues);
@@ -39,7 +39,7 @@ public class EquivalenceClassScoringTest {
 
 	@Test
 	public void testBCubed() {
-		double[] scores = bcubed.score(response);
+		double[] scores = bcubed.score(key, response);
 		// Precision
 		assertEquals(16.0 / 21.0, scores[0], TOLERANCE);
 		// Recall
@@ -50,7 +50,7 @@ public class EquivalenceClassScoringTest {
 	public void testBCubedNoOverlap() {
 		int[][] responseValues = { { 13, 14, 15 } };
 		Set<Set<Integer>> noOverlapResponse = createEquivalenceSets(responseValues);
-		double[] scores = bcubed.score(noOverlapResponse);
+		double[] scores = bcubed.score(key, noOverlapResponse);
 		// Precision
 		assertEquals(0, scores[0], TOLERANCE);
 		// Recall
@@ -59,7 +59,7 @@ public class EquivalenceClassScoringTest {
 	}
 
 	public void testMUC() {
-		double[] scores = muc.score(response);
+		double[] scores = muc.score(key, response);
 		// Precision
 		assertEquals(0.9, scores[0], TOLERANCE);
 		// Recall

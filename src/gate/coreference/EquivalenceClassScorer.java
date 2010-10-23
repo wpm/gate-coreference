@@ -16,9 +16,11 @@ public interface EquivalenceClassScorer<T> {
 	/**
 	 * Return precision and recall scores for a partitioning
 	 * 
+	 * @param key
+	 *            key partitioning
 	 * @param response
 	 *            response partitioning
 	 * @return <precision, recall> array
 	 */
-	public double[] score(Set<Set<T>> response);
+	public double[] score(Set<Set<T>> key, Set<Set<T>> response);
 }
