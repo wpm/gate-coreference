@@ -9,6 +9,7 @@ import gate.coreference.BCubed;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * Test cases taken from:
@@ -25,16 +26,29 @@ public class EquivalenceClassScoringTest {
 	private MUC<Integer> muc;
 
 	private Set<Set<Integer>> key, response;
+	private Set<Set<Integer>> keyMissingResponse, responseMissingResponse;
+	private Set<Set<Integer>> keyNoCommon, responseNoCommon;
 
 	@Before
 	public void setUp() throws Exception {
-		int[][] keyValues = { { 1, 2, 3, 4, 5 }, { 6, 7 }, { 8, 9, 10, 11, 12 } };
-		key = createEquivalenceSets(keyValues);
 		bcubed = new BCubed<Integer>();
 		muc = new MUC<Integer>();
+		// A typical test case.
+		int[][] keyValues = { { 1, 2, 3, 4, 5 }, { 6, 7 }, { 8, 9, 10, 11, 12 } };
 		int[][] responseValues = { { 1, 2, 3, 4, 5 },
 				{ 6, 7, 8, 9, 10, 11, 12 } };
+		key = createEquivalenceSets(keyValues);
 		response = createEquivalenceSets(responseValues);
+		// The response set is missing values.
+		int keyMissingKeyValues[][] = { { 1, 2 }, { 3, 4 } };
+		int responseMissingKeyValues[][] = { { 1, 2 } };
+		keyMissingResponse = createEquivalenceSets(keyMissingKeyValues);
+		responseMissingResponse = createEquivalenceSets(responseMissingKeyValues);
+		// The key and response sets have no elements in common
+		int keyNoCommonValues[][] = { { 1, 2 }, { 3, 4, 5 } };
+		int responseNoCommonValues[][] = { { 6, 7 }, { 8, 9, 10 } };
+		keyNoCommon = createEquivalenceSets(keyNoCommonValues);
+		responseNoCommon = createEquivalenceSets(responseNoCommonValues);
 	}
 
 	@Test
@@ -47,15 +61,22 @@ public class EquivalenceClassScoringTest {
 	}
 
 	@Test
-	public void testBCubedNoOverlap() {
-		int[][] responseValues = { { 13, 14, 15 } };
-		Set<Set<Integer>> noOverlapResponse = createEquivalenceSets(responseValues);
-		double[] scores = bcubed.score(key, noOverlapResponse);
+	public void testBCubedNoCommonValues() {
+		double[] scores = bcubed.score(keyNoCommon, responseNoCommon);
 		// Precision
 		assertEquals(0, scores[0], TOLERANCE);
 		// Recall
 		assertEquals(0, scores[1], TOLERANCE);
+	}
 
+	@Test
+	public void testBCubedMissingResponseValue() {
+		double[] scores = bcubed.score(keyMissingResponse,
+				responseMissingResponse);
+		// Precision
+		assertEquals(1, scores[0], TOLERANCE);
+		// Recall
+		assertEquals(0.5, scores[1], TOLERANCE);
 	}
 
 	public void testMUC() {
@@ -69,7 +90,7 @@ public class EquivalenceClassScoringTest {
 	private Set<Set<Integer>> createEquivalenceSets(int[][] valueSets) {
 		Set<Set<Integer>> partition = new HashSet<Set<Integer>>();
 		for (int[] valueSet : valueSets) {
-			Set<Integer> set = new HashSet<Integer>();
+			Set<Integer> set = new TreeSet<Integer>();
 			for (int i : valueSet)
 				set.add(i);
 			partition.add(set);

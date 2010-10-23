@@ -14,13 +14,13 @@ import java.util.Set;
 public interface EquivalenceClassScorer<T> {
 
 	/**
-	 * Return precision and recall scores for a partitioning
+	 * Precision and recall scores for a pair of equivalence sets.
 	 * 
 	 * @param key
-	 *            key partitioning
+	 *            key equivalence classes
 	 * @param response
-	 *            response partitioning
-	 * @return <precision, recall> array
+	 *            response equivalence classes
+	 * @return (precision, recall) array
 	 */
 	public double[] score(Set<Set<T>> key, Set<Set<T>> response);
 }
