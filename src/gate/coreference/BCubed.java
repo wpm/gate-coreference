@@ -139,16 +139,8 @@ public class BCubed<T> implements EquivalenceClassScorer<T> {
 	 */
 	private PrecisionRecall calculateElementAverages(
 			List<Double> elementPrecisions, List<Double> elementRecalls) {
-		double precision = 0;
-		double recall = 0;
-
-		for (Double ratio : elementPrecisions)
-			precision += ratio;
-		precision /= elementPrecisions.size();
-
-		for (Double ratio : elementRecalls)
-			recall += ratio;
-		recall /= elementRecalls.size();
+		double precision = NumericUtilities.average(elementPrecisions);
+		double recall = NumericUtilities.average(elementRecalls);
 
 		return new PrecisionRecall(precision, recall);
 	}
