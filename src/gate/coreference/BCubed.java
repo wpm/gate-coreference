@@ -46,12 +46,9 @@ public class BCubed<T> implements EquivalenceClassScorer<T> {
 		Map<T, Set<T>> responseTable = buildTable(response);
 
 		List<Double> elementPrecisions = scoreElements(keyTable, responseTable);
-		int responseSize = responseTable.keySet().size();
 		List<Double> elementRecalls = scoreElements(responseTable, keyTable);
-		int keySize = keyTable.keySet().size();
 
-		return calculateElementAverages(elementPrecisions, responseSize,
-				elementRecalls, keySize);
+		return calculateElementAverages(elementPrecisions, elementRecalls);
 	}
 
 	/**
@@ -73,13 +70,10 @@ public class BCubed<T> implements EquivalenceClassScorer<T> {
 
 			List<Double> elementPrecisions = scoreElements(keyTable,
 					responseTable);
-			int responseSize = responseTable.keySet().size();
-
 			List<Double> elementRecalls = scoreElements(responseTable, keyTable);
-			int keySize = keyTable.keySet().size();
 
 			PrecisionRecall score = calculateElementAverages(elementPrecisions,
-					responseSize, elementRecalls, keySize);
+					elementRecalls);
 
 			scores.addScores(score, elementPrecisions, elementRecalls);
 		}
@@ -139,27 +133,22 @@ public class BCubed<T> implements EquivalenceClassScorer<T> {
 	 * 
 	 * @param elementPrecisions
 	 *            element precision scores
-	 * @param responseSize
-	 *            size of the response set
 	 * @param elementRecalls
 	 *            element recall scores
-	 * @param keySize
-	 *            size of the key set
 	 * @return precision recall score for this equivalence set
 	 */
 	private PrecisionRecall calculateElementAverages(
-			List<Double> elementPrecisions, int responseSize,
-			List<Double> elementRecalls, int keySize) {
+			List<Double> elementPrecisions, List<Double> elementRecalls) {
 		double precision = 0;
 		double recall = 0;
 
 		for (Double ratio : elementPrecisions)
 			precision += ratio;
-		precision /= responseSize;
+		precision /= elementPrecisions.size();
 
 		for (Double ratio : elementRecalls)
 			recall += ratio;
-		recall /= keySize;
+		recall /= elementRecalls.size();
 
 		return new PrecisionRecall(precision, recall);
 	}
