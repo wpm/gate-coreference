@@ -18,10 +18,11 @@ public class PrecisionRecall {
 
 	/**
 	 * @param precision
+	 *            precision score
 	 * @param recall
+	 *            recall score
 	 */
 	public PrecisionRecall(double precision, double recall) {
-		super();
 		this.precision = precision;
 		this.recall = recall;
 	}

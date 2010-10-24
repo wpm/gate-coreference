@@ -53,38 +53,30 @@ public class EquivalenceClassScoringTest {
 
 	@Test
 	public void testBCubed() {
-		double[] scores = bcubed.score(key, response);
-		// Precision
-		assertEquals(16.0 / 21.0, scores[0], TOLERANCE);
-		// Recall
-		assertEquals(1, scores[1], TOLERANCE);
+		PrecisionRecall scores = bcubed.score(key, response);
+		assertEquals(16.0 / 21.0, scores.getPrecision(), TOLERANCE);
+		assertEquals(1, scores.getRecall(), TOLERANCE);
 	}
 
 	@Test
 	public void testBCubedNoCommonValues() {
-		double[] scores = bcubed.score(keyNoCommon, responseNoCommon);
-		// Precision
-		assertEquals(0, scores[0], TOLERANCE);
-		// Recall
-		assertEquals(0, scores[1], TOLERANCE);
+		PrecisionRecall scores = bcubed.score(keyNoCommon, responseNoCommon);
+		assertEquals(0, scores.getPrecision(), TOLERANCE);
+		assertEquals(0, scores.getRecall(), TOLERANCE);
 	}
 
 	@Test
 	public void testBCubedMissingResponseValue() {
-		double[] scores = bcubed.score(keyMissingResponse,
+		PrecisionRecall scores = bcubed.score(keyMissingResponse,
 				responseMissingResponse);
-		// Precision
-		assertEquals(1, scores[0], TOLERANCE);
-		// Recall
-		assertEquals(0.5, scores[1], TOLERANCE);
+		assertEquals(1, scores.getPrecision(), TOLERANCE);
+		assertEquals(0.5, scores.getRecall(), TOLERANCE);
 	}
 
 	public void testMUC() {
-		double[] scores = muc.score(key, response);
-		// Precision
-		assertEquals(0.9, scores[0], TOLERANCE);
-		// Recall
-		assertEquals(1, scores[1], TOLERANCE);
+		PrecisionRecall scores = muc.score(key, response);
+		assertEquals(0.9, scores.getPrecision(), TOLERANCE);
+		assertEquals(1, scores.getRecall(), TOLERANCE);
 	}
 
 	private Set<Set<Integer>> createEquivalenceSets(int[][] valueSets) {

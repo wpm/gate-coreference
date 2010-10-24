@@ -20,7 +20,7 @@ public interface EquivalenceClassScorer<T> {
 	 *            key equivalence classes
 	 * @param response
 	 *            response equivalence classes
-	 * @return (precision, recall) array
+	 * @return Precision and recall scores
 	 */
-	public double[] score(Set<Set<T>> key, Set<Set<T>> response);
+	public PrecisionRecall score(Set<Set<T>> key, Set<Set<T>> response);
 }

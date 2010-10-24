@@ -23,7 +23,7 @@ public class BCubed<T> implements EquivalenceClassScorer<T> {
 	 *      java.util.Set)
 	 */
 	@Override
-	public double[] score(Set<Set<T>> key, Set<Set<T>> response) {
+	public PrecisionRecall score(Set<Set<T>> key, Set<Set<T>> response) {
 		double[] scores = { 0.0, 0.0 };
 		Map<T, Set<T>> keyTable = buildTable(key);
 		Map<T, Set<T>> responseTable = buildTable(response);
@@ -38,7 +38,7 @@ public class BCubed<T> implements EquivalenceClassScorer<T> {
 			scores[1] += ratio;
 		scores[1] /= keyTable.keySet().size();
 
-		return scores;
+		return new PrecisionRecall(scores[0], scores[1]);
 	}
 
 	/**

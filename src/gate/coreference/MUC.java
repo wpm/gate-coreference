@@ -14,11 +14,11 @@ import java.util.Set;
 public class MUC<T> implements EquivalenceClassScorer<T> {
 
 	@Override
-	public double[] score(Set<Set<T>> key, Set<Set<T>> response) {
+	public PrecisionRecall score(Set<Set<T>> key, Set<Set<T>> response) {
 		double[] scores = { 0.0, 0.0 };
 		scores[0] = MUCscore(key, response);
 		scores[1] = MUCscore(response, key);
-		return scores;
+		return new PrecisionRecall(scores[0], scores[1]);
 	}
 
 	private double MUCscore(Set<Set<T>> keySets, Set<Set<T>> responseSets) {
