@@ -26,28 +26,20 @@ import java.util.List;
  * 
  * @author <a href="mailto:billmcn@gmail.com">W.P. McNeill</a>
  */
-public class BCubedPrecisionRecallAverages implements PrecisionRecallAverages {
-	List<PrecisionRecall> scores = new LinkedList<PrecisionRecall>();
+public class BCubedPrecisionRecallAverages extends PrecisionRecallAverages {
 	List<Double> elementPrecisions = new LinkedList<Double>();
 	List<Double> elementRecalls = new LinkedList<Double>();
 
-	@Override
-	public Iterable<PrecisionRecall> getScores() {
-		return scores;
-	}
-
-	@Override
-	public PrecisionRecall getMicroAverage() {
-		double precision = 0;
-		double recall = 0;
-		for (PrecisionRecall score : scores) {
-			precision += score.getPrecision();
-			recall += score.getRecall();
-		}
-		int n = scores.size();
-		precision /= n;
-		recall /= n;
-		return new PrecisionRecall(precision, recall);
+	/**
+	 * @param elementPrecisions
+	 *            element precision scores
+	 * @param elementRecalls
+	 *            element recall scores
+	 */
+	public void addElementScores(List<Double> elementPrecisions,
+			List<Double> elementRecalls) {
+		this.elementPrecisions.addAll(elementPrecisions);
+		this.elementRecalls.addAll(elementRecalls);
 	}
 
 	@Override
@@ -64,20 +56,5 @@ public class BCubedPrecisionRecallAverages implements PrecisionRecallAverages {
 		recall /= elementRecalls.size();
 
 		return new PrecisionRecall(precision, recall);
-	}
-
-	/**
-	 * @param score
-	 *            precision and recall for a pair of equivalence sets
-	 * @param elementPrecisions
-	 *            element precision scores
-	 * @param elementRecalls
-	 *            element recall scores
-	 */
-	public void addScores(PrecisionRecall score,
-			List<Double> elementPrecisions, List<Double> elementRecalls) {
-		scores.add(score);
-		this.elementPrecisions.addAll(elementPrecisions);
-		this.elementRecalls.addAll(elementRecalls);
 	}
 }

@@ -77,7 +77,8 @@ public class BCubed<T> implements EquivalenceClassScorer<T> {
 			double recall = NumericUtilities.average(elementRecalls);
 
 			PrecisionRecall score = new PrecisionRecall(precision, recall);
-			scores.addScores(score, elementPrecisions, elementRecalls);
+			scores.addScore(score);
+			scores.addElementScores(elementPrecisions, elementRecalls);
 		}
 		return scores;
 	}

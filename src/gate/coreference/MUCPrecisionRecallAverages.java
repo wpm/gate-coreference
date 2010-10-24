@@ -24,49 +24,11 @@ import java.util.List;
 /**
  * @author <a href="mailto:billmcn@gmail.com">W.P. McNeill</a>
  */
-public class MUCPrecisionRecallAverages implements PrecisionRecallAverages {
-	List<PrecisionRecall> scores = new LinkedList<PrecisionRecall>();
+public class MUCPrecisionRecallAverages extends PrecisionRecallAverages {
 	List<Integer> precisionNumeratorTerms = new LinkedList<Integer>();
 	List<Integer> precisionDenominatorTerms = new LinkedList<Integer>();
 	List<Integer> recallNumeratorTerms = new LinkedList<Integer>();
 	List<Integer> recallDenominatorTerms = new LinkedList<Integer>();
-
-	@Override
-	public Iterable<PrecisionRecall> getScores() {
-		return scores;
-	}
-
-	@Override
-	public PrecisionRecall getMicroAverage() {
-		double precision = 0;
-		double recall = 0;
-		for (PrecisionRecall score : scores) {
-			precision += score.getPrecision();
-			recall += score.getRecall();
-		}
-		int n = scores.size();
-		precision /= n;
-		recall /= n;
-		return new PrecisionRecall(precision, recall);
-	}
-
-	@Override
-	public PrecisionRecall getMacroAverage() {
-		double precision = calculateRatioFromTerms(precisionNumeratorTerms,
-				precisionDenominatorTerms);
-		double recall = calculateRatioFromTerms(recallNumeratorTerms,
-				recallDenominatorTerms);
-
-		return new PrecisionRecall(precision, recall);
-	}
-
-	/**
-	 * @param score
-	 *            precision and recall for a pair of equivalence sets
-	 */
-	public void addScore(PrecisionRecall score) {
-		scores.add(score);
-	}
 
 	/**
 	 * @param numeratorTerms
@@ -88,6 +50,16 @@ public class MUCPrecisionRecallAverages implements PrecisionRecallAverages {
 			List<Integer> denominatorTerms) {
 		this.recallNumeratorTerms.addAll(numeratorTerms);
 		this.recallDenominatorTerms.addAll(denominatorTerms);
+	}
+
+	@Override
+	public PrecisionRecall getMacroAverage() {
+		double precision = calculateRatioFromTerms(precisionNumeratorTerms,
+				precisionDenominatorTerms);
+		double recall = calculateRatioFromTerms(recallNumeratorTerms,
+				recallDenominatorTerms);
+	
+		return new PrecisionRecall(precision, recall);
 	}
 
 	/**
