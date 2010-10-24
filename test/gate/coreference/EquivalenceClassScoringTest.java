@@ -28,6 +28,7 @@ public class EquivalenceClassScoringTest {
 	private Set<Set<Integer>> key, response;
 	private Set<Set<Integer>> keyMissingResponse, responseMissingResponse;
 	private Set<Set<Integer>> keyNoCommon, responseNoCommon;
+	private Set<Set<Integer>> keyMissingKey, responseMissingKey;
 
 	@Before
 	public void setUp() throws Exception {
@@ -44,6 +45,11 @@ public class EquivalenceClassScoringTest {
 		int responseMissingResponseValues[][] = { { 1, 2 } };
 		keyMissingResponse = createEquivalenceSets(keyMissingResponseValues);
 		responseMissingResponse = createEquivalenceSets(responseMissingResponseValues);
+		// The key set is missing values
+		int keyMissingKeyValues[][] = { { 1, 2 } };
+		int responseMissingKeyValues[][] = { { 1, 2 }, { 3, 4 } };
+		keyMissingKey = createEquivalenceSets(keyMissingKeyValues);
+		responseMissingKey = createEquivalenceSets(responseMissingKeyValues);
 		// The key and response sets have no elements in common
 		int keyNoCommonValues[][] = { { 1, 2 }, { 3, 4, 5 } };
 		int responseNoCommonValues[][] = { { 6, 7 }, { 8, 9, 10 } };
@@ -74,6 +80,14 @@ public class EquivalenceClassScoringTest {
 	}
 
 	@Test
+	public void testBCubedMissingKeyValue() {
+		PrecisionRecall scores = bcubed
+				.score(keyMissingKey, responseMissingKey);
+		assertEquals(0.5, scores.getPrecision(), TOLERANCE);
+		assertEquals(1, scores.getRecall(), TOLERANCE);
+	}
+
+	@Test
 	public void testMUC() {
 		PrecisionRecall scores = muc.score(key, response);
 		assertEquals(0.9, scores.getPrecision(), TOLERANCE);
@@ -94,7 +108,14 @@ public class EquivalenceClassScoringTest {
 		assertEquals(1, scores.getPrecision(), TOLERANCE);
 		assertEquals(0.5, scores.getRecall(), TOLERANCE);
 	}
-	
+
+	@Test
+	public void testMUCMissingKeyValue() {
+		PrecisionRecall scores = muc.score(keyMissingKey, responseMissingKey);
+		assertEquals(0.5, scores.getPrecision(), TOLERANCE);
+		assertEquals(1, scores.getRecall(), TOLERANCE);
+	}
+
 	private Set<Set<Integer>> createEquivalenceSets(int[][] valueSets) {
 		Set<Set<Integer>> partition = new HashSet<Set<Integer>>();
 		for (int[] valueSet : valueSets) {
