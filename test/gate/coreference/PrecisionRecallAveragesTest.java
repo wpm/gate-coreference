@@ -55,8 +55,8 @@ public class PrecisionRecallAveragesTest {
 		set1.add(key1);
 		set1.add(response1);
 
-		int[][] key2Values = { { 5, 6 }, { 7, 8, 9 } };
-		int[][] response2Values = { { 5, 7 } };
+		int[][] key2Values = { { 1, 2 }, { 3, 4, 5 } };
+		int[][] response2Values = { { 1, 3 } };
 		Set<Set<Integer>> key2 = TestUtilities
 				.createEquivalenceSets(key2Values);
 		Set<Set<Integer>> response2 = TestUtilities
