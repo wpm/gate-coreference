@@ -42,21 +42,48 @@ public class BCubed<T> implements EquivalenceClassScorer<T> {
 	 */
 	@Override
 	public PrecisionRecall score(Set<Set<T>> key, Set<Set<T>> response) {
-		double[] scores = { 0.0, 0.0 };
 		Map<T, Set<T>> keyTable = buildTable(key);
 		Map<T, Set<T>> responseTable = buildTable(response);
 
-		// Precision
-		for (Double ratio : comparePartitions(keyTable, responseTable))
-			scores[0] += ratio;
-		scores[0] /= responseTable.keySet().size();
+		List<Double> elementPrecisions = scoreElements(keyTable, responseTable);
+		int responseSize = responseTable.keySet().size();
+		List<Double> elementRecalls = scoreElements(responseTable, keyTable);
+		int keySize = keyTable.keySet().size();
 
-		// Recall
-		for (Double ratio : comparePartitions(responseTable, keyTable))
-			scores[1] += ratio;
-		scores[1] /= keyTable.keySet().size();
+		return calculateElementAverages(elementPrecisions, responseSize,
+				elementRecalls, keySize);
+	}
 
-		return new PrecisionRecall(scores[0], scores[1]);
+	/**
+	 * B-Cubed scores for a set of equivalence set pairs and their micro and
+	 * macro averages.
+	 * 
+	 * @see gate.coreference.EquivalenceClassScorer#scoreMultipleSets(java.lang.Iterable)
+	 */
+	@Override
+	public PrecisionRecallAverages scoreMultipleSets(
+			Iterable<List<Set<Set<T>>>> sets) {
+		BCubedPrecisionRecallAverages scores = new BCubedPrecisionRecallAverages();
+		for (List<Set<Set<T>>> equivalenceSets : sets) {
+			Set<Set<T>> key = equivalenceSets.get(0);
+			Set<Set<T>> response = equivalenceSets.get(1);
+
+			Map<T, Set<T>> keyTable = buildTable(key);
+			Map<T, Set<T>> responseTable = buildTable(response);
+
+			List<Double> elementPrecisions = scoreElements(keyTable,
+					responseTable);
+			int responseSize = responseTable.keySet().size();
+
+			List<Double> elementRecalls = scoreElements(responseTable, keyTable);
+			int keySize = keyTable.keySet().size();
+
+			PrecisionRecall score = calculateElementAverages(elementPrecisions,
+					responseSize, elementRecalls, keySize);
+
+			scores.addScores(score, elementPrecisions, elementRecalls);
+		}
+		return scores;
 	}
 
 	/**
@@ -79,15 +106,18 @@ public class BCubed<T> implements EquivalenceClassScorer<T> {
 	}
 
 	/**
+	 * Calculate score ratios for a set of elements in an equivalence set
+	 * partition. These scores are averaged to get precision and recall.
+	 * 
 	 * @param numTable
 	 *            set table of the score numerator
 	 * @param denTable
 	 *            set table of the score denominator
-	 * @return list of score ratios
+	 * @return list of scores for individual elements
 	 */
-	private List<Double> comparePartitions(Map<T, Set<T>> numTable,
+	private List<Double> scoreElements(Map<T, Set<T>> numTable,
 			Map<T, Set<T>> denTable) {
-		List<Double> ratios = new LinkedList<Double>();
+		List<Double> elementScores = new LinkedList<Double>();
 		for (T element : denTable.keySet()) {
 			double numerator, denominator;
 			if (!numTable.containsKey(element))
@@ -98,9 +128,40 @@ public class BCubed<T> implements EquivalenceClassScorer<T> {
 				numerator = intersection.size();
 			}
 			denominator = denTable.get(element).size();
-			ratios.add(numerator / denominator);
+			elementScores.add(numerator / denominator);
 		}
-		return ratios;
+		return elementScores;
+	}
+
+	/**
+	 * Take the average of individual element scores to get precision and
+	 * recall.
+	 * 
+	 * @param elementPrecisions
+	 *            element precision scores
+	 * @param responseSize
+	 *            size of the response set
+	 * @param elementRecalls
+	 *            element recall scores
+	 * @param keySize
+	 *            size of the key set
+	 * @return precision recall score for this equivalence set
+	 */
+	private PrecisionRecall calculateElementAverages(
+			List<Double> elementPrecisions, int responseSize,
+			List<Double> elementRecalls, int keySize) {
+		double precision = 0;
+		double recall = 0;
+
+		for (Double ratio : elementPrecisions)
+			precision += ratio;
+		precision /= responseSize;
+
+		for (Double ratio : elementRecalls)
+			recall += ratio;
+		recall /= keySize;
+
+		return new PrecisionRecall(precision, recall);
 	}
 
 }

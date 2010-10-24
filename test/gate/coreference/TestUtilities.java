@@ -18,30 +18,24 @@
 
 package gate.coreference;
 
-import java.util.List;
+import java.util.HashSet;
 import java.util.Set;
+import java.util.TreeSet;
 
 /**
- * Framework for generating a score that measures the similarity of two
- * equivalence classes.
- * 
- * @param T
- *            type of objects in equivalence sets
- * 
  * @author <a href="mailto:billmcn@gmail.com">W.P. McNeill</a>
  */
-public interface EquivalenceClassScorer<T> {
+public class TestUtilities {
 
-	/**
-	 * Precision and recall scores for a pair of equivalence sets.
-	 * 
-	 * @param key
-	 *            key equivalence classes
-	 * @param response
-	 *            response equivalence classes
-	 * @return Precision and recall scores
-	 */
-	public PrecisionRecall score(Set<Set<T>> key, Set<Set<T>> response);
+	final static public Set<Set<Integer>> createEquivalenceSets(int[][] valueSets) {
+		Set<Set<Integer>> partition = new HashSet<Set<Integer>>();
+		for (int[] valueSet : valueSets) {
+			Set<Integer> set = new TreeSet<Integer>();
+			for (int i : valueSet)
+				set.add(i);
+			partition.add(set);
+		}
+		return partition;
+	}
 
-	public PrecisionRecallAverages scoreMultipleSets(Iterable<List<Set<Set<T>>>> sets);
 }

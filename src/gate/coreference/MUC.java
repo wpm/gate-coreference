@@ -18,6 +18,7 @@
 
 package gate.coreference;
 
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -72,6 +73,15 @@ public class MUC<T> implements EquivalenceClassScorer<T> {
 			if (!SetUtilities.intersection(keySet, responseSet).isEmpty())
 				n++;
 		return n;
+	}
+
+	/* (non-Javadoc)
+	 * @see gate.coreference.EquivalenceClassScorer#scoreMultipleSets(java.lang.Iterable)
+	 */
+	@Override
+	public PrecisionRecallAverages scoreMultipleSets(Iterable<List<Set<Set<T>>>> sets) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

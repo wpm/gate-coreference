@@ -25,9 +25,7 @@ import org.junit.Test;
 
 import gate.coreference.BCubed;
 
-import java.util.HashSet;
 import java.util.Set;
-import java.util.TreeSet;
 
 /**
  * Test cases taken from:
@@ -56,23 +54,28 @@ public class EquivalenceClassScoringTest {
 		int[][] keyValues = { { 1, 2, 3, 4, 5 }, { 6, 7 }, { 8, 9, 10, 11, 12 } };
 		int[][] responseValues = { { 1, 2, 3, 4, 5 },
 				{ 6, 7, 8, 9, 10, 11, 12 } };
-		key = createEquivalenceSets(keyValues);
-		response = createEquivalenceSets(responseValues);
+		key = TestUtilities.createEquivalenceSets(keyValues);
+		response = TestUtilities.createEquivalenceSets(responseValues);
 		// The response set is missing values
 		int keyMissingResponseValues[][] = { { 1, 2 }, { 3, 4 } };
 		int responseMissingResponseValues[][] = { { 1, 2 } };
-		keyMissingResponse = createEquivalenceSets(keyMissingResponseValues);
-		responseMissingResponse = createEquivalenceSets(responseMissingResponseValues);
+		keyMissingResponse = TestUtilities
+				.createEquivalenceSets(keyMissingResponseValues);
+		responseMissingResponse = TestUtilities
+				.createEquivalenceSets(responseMissingResponseValues);
 		// The key set is missing values
 		int keyMissingKeyValues[][] = { { 1, 2 } };
 		int responseMissingKeyValues[][] = { { 1, 2 }, { 3, 4 } };
-		keyMissingKey = createEquivalenceSets(keyMissingKeyValues);
-		responseMissingKey = createEquivalenceSets(responseMissingKeyValues);
+		keyMissingKey = TestUtilities
+				.createEquivalenceSets(keyMissingKeyValues);
+		responseMissingKey = TestUtilities
+				.createEquivalenceSets(responseMissingKeyValues);
 		// The key and response sets have no elements in common
 		int keyNoCommonValues[][] = { { 1, 2 }, { 3, 4, 5 } };
 		int responseNoCommonValues[][] = { { 6, 7 }, { 8, 9, 10 } };
-		keyNoCommon = createEquivalenceSets(keyNoCommonValues);
-		responseNoCommon = createEquivalenceSets(responseNoCommonValues);
+		keyNoCommon = TestUtilities.createEquivalenceSets(keyNoCommonValues);
+		responseNoCommon = TestUtilities
+				.createEquivalenceSets(responseNoCommonValues);
 	}
 
 	@Test
@@ -132,16 +135,5 @@ public class EquivalenceClassScoringTest {
 		PrecisionRecall scores = muc.score(keyMissingKey, responseMissingKey);
 		assertEquals(0.5, scores.getPrecision(), TOLERANCE);
 		assertEquals(1, scores.getRecall(), TOLERANCE);
-	}
-
-	private Set<Set<Integer>> createEquivalenceSets(int[][] valueSets) {
-		Set<Set<Integer>> partition = new HashSet<Set<Integer>>();
-		for (int[] valueSet : valueSets) {
-			Set<Integer> set = new TreeSet<Integer>();
-			for (int i : valueSet)
-				set.add(i);
-			partition.add(set);
-		}
-		return partition;
 	}
 }
