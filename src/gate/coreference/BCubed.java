@@ -45,10 +45,10 @@ public class BCubed<T> implements EquivalenceClassScorer<T> {
 		Map<T, Set<T>> keyTable = buildTable(key);
 		Map<T, Set<T>> responseTable = buildTable(response);
 
-		List<Double> elementPrecisions = scoreElements(keyTable, responseTable);
-		List<Double> elementRecalls = scoreElements(responseTable, keyTable);
+		double precision = bCubedScore(keyTable, responseTable);
+		double recall = bCubedScore(responseTable, keyTable);
 
-		return calculateElementAverages(elementPrecisions, elementRecalls);
+		return new PrecisionRecall(precision, recall);
 	}
 
 	/**
@@ -68,16 +68,75 @@ public class BCubed<T> implements EquivalenceClassScorer<T> {
 			Map<T, Set<T>> keyTable = buildTable(key);
 			Map<T, Set<T>> responseTable = buildTable(response);
 
-			List<Double> elementPrecisions = scoreElements(keyTable,
+			List<Double> elementPrecisions = bCubedElementScores(keyTable,
 					responseTable);
-			List<Double> elementRecalls = scoreElements(responseTable, keyTable);
+			List<Double> elementRecalls = bCubedElementScores(responseTable,
+					keyTable);
 
-			PrecisionRecall score = calculateElementAverages(elementPrecisions,
-					elementRecalls);
+			double precision = NumericUtilities.average(elementPrecisions);
+			double recall = NumericUtilities.average(elementRecalls);
 
+			PrecisionRecall score = new PrecisionRecall(precision, recall);
 			scores.addScores(score, elementPrecisions, elementRecalls);
 		}
 		return scores;
+	}
+
+	/**
+	 * Calculate the average score ratio for a set of elements in an equivalence
+	 * set partition.
+	 * 
+	 * @param numTable
+	 *            set table of the score numerator
+	 * @param denTable
+	 *            set table of the score denominator
+	 * @return average of the scores for individual elements
+	 */
+	private double bCubedScore(Map<T, Set<T>> numTable, Map<T, Set<T>> denTable) {
+		double score = 0;
+		for (T element : denTable.keySet()) {
+			double numerator, denominator;
+			if (!numTable.containsKey(element))
+				numerator = 0;
+			else {
+				Set<T> intersection = SetUtilities.intersection(
+						numTable.get(element), denTable.get(element));
+				numerator = intersection.size();
+			}
+			denominator = denTable.get(element).size();
+			score += numerator / denominator;
+		}
+		score /= denTable.keySet().size();
+		return score;
+	}
+
+	/**
+	 * Calculate score ratios for a set of elements in an equivalence set
+	 * partition. These scores are averaged to get precision and recall. This is
+	 * used instead of {@link bCubedScores} when calculating macro averages.
+	 * 
+	 * @param numTable
+	 *            set table of the score numerator
+	 * @param denTable
+	 *            set table of the score denominator
+	 * @return list of scores for individual elements
+	 */
+	private List<Double> bCubedElementScores(Map<T, Set<T>> numTable,
+			Map<T, Set<T>> denTable) {
+		List<Double> elementScores = new LinkedList<Double>();
+		for (T element : denTable.keySet()) {
+			double numerator, denominator;
+			if (!numTable.containsKey(element))
+				numerator = 0;
+			else {
+				Set<T> intersection = SetUtilities.intersection(
+						numTable.get(element), denTable.get(element));
+				numerator = intersection.size();
+			}
+			denominator = denTable.get(element).size();
+			elementScores.add(numerator / denominator);
+		}
+		return elementScores;
 	}
 
 	/**
@@ -97,52 +156,6 @@ public class BCubed<T> implements EquivalenceClassScorer<T> {
 				table.put(item, set);
 			}
 		return table;
-	}
-
-	/**
-	 * Calculate score ratios for a set of elements in an equivalence set
-	 * partition. These scores are averaged to get precision and recall.
-	 * 
-	 * @param numTable
-	 *            set table of the score numerator
-	 * @param denTable
-	 *            set table of the score denominator
-	 * @return list of scores for individual elements
-	 */
-	private List<Double> scoreElements(Map<T, Set<T>> numTable,
-			Map<T, Set<T>> denTable) {
-		List<Double> elementScores = new LinkedList<Double>();
-		for (T element : denTable.keySet()) {
-			double numerator, denominator;
-			if (!numTable.containsKey(element))
-				numerator = 0;
-			else {
-				Set<T> intersection = SetUtilities.intersection(
-						numTable.get(element), denTable.get(element));
-				numerator = intersection.size();
-			}
-			denominator = denTable.get(element).size();
-			elementScores.add(numerator / denominator);
-		}
-		return elementScores;
-	}
-
-	/**
-	 * Take the average of individual element scores to get precision and
-	 * recall.
-	 * 
-	 * @param elementPrecisions
-	 *            element precision scores
-	 * @param elementRecalls
-	 *            element recall scores
-	 * @return precision recall score for this equivalence set
-	 */
-	private PrecisionRecall calculateElementAverages(
-			List<Double> elementPrecisions, List<Double> elementRecalls) {
-		double precision = NumericUtilities.average(elementPrecisions);
-		double recall = NumericUtilities.average(elementRecalls);
-
-		return new PrecisionRecall(precision, recall);
 	}
 
 }
