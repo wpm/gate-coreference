@@ -34,6 +34,7 @@ public class PrecisionRecallAveragesTest {
 
 	private static final double TOLERANCE = 1e-6;
 	private BCubed<Integer> bcubed;
+	private MUC<Integer> muc;
 
 	private List<List<Set<Set<Integer>>>> sets;
 
@@ -43,6 +44,8 @@ public class PrecisionRecallAveragesTest {
 	@Before
 	public void setUp() throws Exception {
 		bcubed = new BCubed<Integer>();
+		muc = new MUC<Integer>();
+
 		sets = new LinkedList<List<Set<Set<Integer>>>>();
 
 		int[][] key1Values = { { 1, 2 }, { 3, 4 } };
@@ -64,13 +67,13 @@ public class PrecisionRecallAveragesTest {
 		List<Set<Set<Integer>>> set2 = new LinkedList<Set<Set<Integer>>>();
 		set2.add(key2);
 		set2.add(response2);
-		
+
 		sets.add(set1);
 		sets.add(set2);
 	}
 
 	@Test
-	public void testBCubed() {
+	public void testBCubedAverages() {
 		PrecisionRecall microAverage, macroAverage;
 
 		PrecisionRecallAverages precisionRecallAverages = bcubed
@@ -78,14 +81,32 @@ public class PrecisionRecallAveragesTest {
 
 		microAverage = precisionRecallAverages.getMicroAverage();
 		// 19/36 = 0.527....
-		assertEquals(19.0/36.0, microAverage.getPrecision(), TOLERANCE);
+		assertEquals(19.0 / 36.0, microAverage.getPrecision(), TOLERANCE);
 		// 19/48 = 0.39583...
-		assertEquals(19.0/48.0, microAverage.getRecall(), TOLERANCE);
+		assertEquals(19.0 / 48.0, microAverage.getRecall(), TOLERANCE);
 
 		macroAverage = precisionRecallAverages.getMacroAverage();
 		// 8/15 = 0.53....
-		assertEquals(8.0/15.0, macroAverage.getPrecision(), TOLERANCE);
+		assertEquals(8.0 / 15.0, macroAverage.getPrecision(), TOLERANCE);
 		// 10/27 = 0.370 370...
-		assertEquals(10.0/27.0, macroAverage.getRecall(), TOLERANCE);
+		assertEquals(10.0 / 27.0, macroAverage.getRecall(), TOLERANCE);
 	}
+
+	@Test
+	public void testBMUCAverages() {
+		PrecisionRecall microAverage, macroAverage;
+
+		PrecisionRecallAverages precisionRecallAverages = muc
+				.scoreMultipleSets(sets);
+
+		microAverage = precisionRecallAverages.getMicroAverage();
+		assertEquals(0.25, microAverage.getPrecision(), TOLERANCE);
+		assertEquals(0.25, microAverage.getRecall(), TOLERANCE);
+
+		macroAverage = precisionRecallAverages.getMacroAverage();
+		// 1/3 = 0.3....
+		assertEquals(1.0 / 3.0, macroAverage.getPrecision(), TOLERANCE);
+		assertEquals(0.2, macroAverage.getRecall(), TOLERANCE);
+	}
+
 }

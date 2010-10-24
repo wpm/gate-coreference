@@ -18,6 +18,7 @@
 
 package gate.coreference;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -36,6 +37,37 @@ public class MUC<T> implements EquivalenceClassScorer<T> {
 		double precision = MUCscore(response, key);
 		double recall = MUCscore(key, response);
 		return new PrecisionRecall(precision, recall);
+	}
+
+	@Override
+	public PrecisionRecallAverages scoreMultipleSets(
+			Iterable<List<Set<Set<T>>>> sets) {
+		MUCPrecisionRecallAverages scores = new MUCPrecisionRecallAverages();
+		for (List<Set<Set<T>>> equivalenceSets : sets) {
+			int numerator, denominator;
+			double precision, recall;
+
+			Set<Set<T>> key = equivalenceSets.get(0);
+			Set<Set<T>> response = equivalenceSets.get(1);
+
+			// Precision
+			List<List<Integer>> precisionTerms = MUCscoreTerms(response, key);
+			numerator = sumTerms(precisionTerms.get(0));
+			denominator = sumTerms(precisionTerms.get(1));
+			precision = (double) numerator / denominator;
+
+			// Recall
+			List<List<Integer>> recallTerms = MUCscoreTerms(key, response);
+			numerator = sumTerms(recallTerms.get(0));
+			denominator = sumTerms(recallTerms.get(1));
+			recall = (double) numerator / denominator;
+
+			PrecisionRecall score = new PrecisionRecall(precision, recall);
+			scores.addScore(score);
+			scores.addPrecisionTerms(precisionTerms.get(0), precisionTerms.get(1));
+			scores.addRecallTerms(recallTerms.get(0), recallTerms.get(1));
+		}
+		return scores;
 	}
 
 	/**
@@ -60,6 +92,33 @@ public class MUC<T> implements EquivalenceClassScorer<T> {
 	}
 
 	/**
+	 * Calculate numerator and denominator terms in a MUC score. Precision and
+	 * recall are obtained by swapping the key and response sets. This is used
+	 * instead of {@link MUCscore} when we are calculating macro averages.
+	 * 
+	 * @param keySets
+	 *            key equivalence classes
+	 * @param responseSets
+	 *            response equivalence classes
+	 * @return list of terms in the numerator and denominator of the score
+	 */
+	private List<List<Integer>> MUCscoreTerms(Set<Set<T>> keySets,
+			Set<Set<T>> responseSets) {
+		List<List<Integer>> terms = new LinkedList<List<Integer>>();
+		List<Integer> numeratorTerms = new LinkedList<Integer>();
+		List<Integer> denominatorTerms = new LinkedList<Integer>();
+
+		for (Set<T> keySet : keySets) {
+			int s = keySet.size();
+			numeratorTerms.add(s - partitionSize(keySet, responseSets));
+			denominatorTerms.add(s - 1);
+		}
+		terms.add(numeratorTerms);
+		terms.add(denominatorTerms);
+		return terms;
+	}
+
+	/**
 	 * @param keySet
 	 *            key set
 	 * @param responseSets
@@ -75,13 +134,17 @@ public class MUC<T> implements EquivalenceClassScorer<T> {
 		return n;
 	}
 
-	/* (non-Javadoc)
-	 * @see gate.coreference.EquivalenceClassScorer#scoreMultipleSets(java.lang.Iterable)
+	/**
+	 * Sum a list of integers.
+	 * 
+	 * @param terms
+	 * @return sum of the terms
 	 */
-	@Override
-	public PrecisionRecallAverages scoreMultipleSets(Iterable<List<Set<Set<T>>>> sets) {
-		// TODO Auto-generated method stub
-		return null;
+	private int sumTerms(List<Integer> terms) {
+		int sum = 0;
+		for (Integer term : terms)
+			sum += term;
+		return sum;
 	}
 
 }
