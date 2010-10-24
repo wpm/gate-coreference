@@ -28,6 +28,22 @@ public class SetUtilities {
 	}
 
 	/**
+	 * Union of a set of sets
+	 * 
+	 * @param <T>
+	 *            element type
+	 * @param sets
+	 *            sets to combine
+	 * @return union of the sets
+	 */
+	static public <T> Set<T> union(Set<Set<T>> sets) {
+		Set<T> union = new HashSet<T>();
+		for (Set<T> set : sets)
+			union.addAll(set);
+		return union;
+	}
+
+	/**
 	 * Set intersection
 	 * 
 	 * @param <T>

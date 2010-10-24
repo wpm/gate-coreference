@@ -1,6 +1,5 @@
 package gate.coreference;
 
-import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -15,27 +14,46 @@ public class MUC<T> implements EquivalenceClassScorer<T> {
 
 	@Override
 	public PrecisionRecall score(Set<Set<T>> key, Set<Set<T>> response) {
-		double[] scores = { 0.0, 0.0 };
-		scores[0] = MUCscore(key, response);
-		scores[1] = MUCscore(response, key);
-		return new PrecisionRecall(scores[0], scores[1]);
+		double precision = MUCscore(response, key);
+		double recall = MUCscore(key, response);
+		return new PrecisionRecall(precision, recall);
 	}
 
+	/**
+	 * Calculate MUC score. Precision and recall are obtained by swapping the
+	 * key and response sets.
+	 * 
+	 * @param keySets
+	 *            key equivalence classes
+	 * @param responseSets
+	 *            response equivalence classes
+	 * @return MUC score of the key sets partitioned on the response sets
+	 */
 	private double MUCscore(Set<Set<T>> keySets, Set<Set<T>> responseSets) {
-		double score = 0.0;
-		Set<T> responseUnion = new HashSet<T>();
-		for (Set<T> responseSet : responseSets)
-			responseUnion.addAll(responseSet);
+		int numerator = 0;
+		int denominator = 0;
 		for (Set<T> keySet : keySets) {
-			int num = 0;
-			for (Set<T> responseSet : responseSets)
-				num += SetUtilities.intersection(keySet, responseSet).size() - 1;
-			// Implicit partitions for elements not in the response.
-			num += SetUtilities.difference(keySet, responseUnion).size();
-			double den = keySet.size() - 1;
-			score += num / den;
+			int s = keySet.size();
+			numerator += s - partitionSize(keySet, responseSets);
+			denominator += s - 1;
 		}
-		return score;
+		return ((double) numerator) / denominator;
+	}
+
+	/**
+	 * @param keySet
+	 *            key set
+	 * @param responseSets
+	 *            response sets on which to partition the key set
+	 * @return size of the partition of the key set on the response sets
+	 */
+	private int partitionSize(Set<T> keySet, Set<Set<T>> responseSets) {
+		Set<T> union = SetUtilities.union(responseSets);
+		int n = SetUtilities.difference(keySet, union).size();
+		for (Set<T> responseSet : responseSets)
+			if (!SetUtilities.intersection(keySet, responseSet).isEmpty())
+				n++;
+		return n;
 	}
 
 }

@@ -2,6 +2,7 @@ package gate.coreference;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -25,13 +26,27 @@ public class SetUtilitiesTest {
 	}
 
 	@Test
-	public void testUnion() {
+	public void testPairUnion() {
 		Set<Integer> expected = new TreeSet<Integer>();
 		expected.add(1);
 		expected.add(2);
 		expected.add(3);
 		expected.add(4);
 		Set<Integer> actual = SetUtilities.union(a, b);
+		assertEquals(expected, actual);
+	}
+
+	@Test
+	public void testListUnion() {
+		Set<Integer> expected = new TreeSet<Integer>();
+		expected.add(1);
+		expected.add(2);
+		expected.add(3);
+		expected.add(4);
+		Set<Set<Integer>> sets = new HashSet<Set<Integer>>();
+		sets.add(a);
+		sets.add(b);
+		Set<Integer> actual = SetUtilities.union(sets);
 		assertEquals(expected, actual);
 	}
 

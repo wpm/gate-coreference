@@ -33,7 +33,7 @@ public class EquivalenceClassScoringTest {
 	public void setUp() throws Exception {
 		bcubed = new BCubed<Integer>();
 		muc = new MUC<Integer>();
-		// A typical test case.
+		// Test case taken from the Bagga and Baldwin paper
 		int[][] keyValues = { { 1, 2, 3, 4, 5 }, { 6, 7 }, { 8, 9, 10, 11, 12 } };
 		int[][] responseValues = { { 1, 2, 3, 4, 5 },
 				{ 6, 7, 8, 9, 10, 11, 12 } };
@@ -73,12 +73,28 @@ public class EquivalenceClassScoringTest {
 		assertEquals(0.5, scores.getRecall(), TOLERANCE);
 	}
 
+	@Test
 	public void testMUC() {
 		PrecisionRecall scores = muc.score(key, response);
 		assertEquals(0.9, scores.getPrecision(), TOLERANCE);
 		assertEquals(1, scores.getRecall(), TOLERANCE);
 	}
 
+	@Test
+	public void testMUCNoCommonValues() {
+		PrecisionRecall scores = muc.score(keyNoCommon, responseNoCommon);
+		assertEquals(0, scores.getPrecision(), TOLERANCE);
+		assertEquals(0, scores.getRecall(), TOLERANCE);
+	}
+
+	@Test
+	public void testMUCMissingResponseValue() {
+		PrecisionRecall scores = muc.score(keyMissingResponse,
+				responseMissingResponse);
+		assertEquals(1, scores.getPrecision(), TOLERANCE);
+		assertEquals(0.5, scores.getRecall(), TOLERANCE);
+	}
+	
 	private Set<Set<Integer>> createEquivalenceSets(int[][] valueSets) {
 		Set<Set<Integer>> partition = new HashSet<Set<Integer>>();
 		for (int[] valueSet : valueSets) {
