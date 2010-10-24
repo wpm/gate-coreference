@@ -22,6 +22,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
+ * Micro and macro averages for a set of B-cubed scores.
+ * 
  * @author <a href="mailto:billmcn@gmail.com">W.P. McNeill</a>
  */
 public class BCubedPrecisionRecallAverages implements PrecisionRecallAverages {

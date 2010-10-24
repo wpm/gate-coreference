@@ -55,8 +55,8 @@ public class PrecisionRecallAveragesTest {
 		set1.add(key1);
 		set1.add(response1);
 
-		int[][] key2Values = { { 5, 6 }, { 7, 8 } };
-		int[][] response2Values = { { 5, 8, 9 } };
+		int[][] key2Values = { { 5, 6 }, { 7, 8, 9 } };
+		int[][] response2Values = { { 5, 7 } };
 		Set<Set<Integer>> key2 = TestUtilities
 				.createEquivalenceSets(key2Values);
 		Set<Set<Integer>> response2 = TestUtilities
@@ -77,15 +77,15 @@ public class PrecisionRecallAveragesTest {
 				.scoreMultipleSets(sets);
 
 		microAverage = precisionRecallAverages.getMicroAverage();
-		// 7/18 = 0.38....
-		assertEquals(7.0/18.0, microAverage.getPrecision(), TOLERANCE);
-		// 7/16 = 0.4375
-		assertEquals(0.4375, microAverage.getRecall(), TOLERANCE);
+		// 19/36 = 0.527....
+		assertEquals(19.0/36.0, microAverage.getPrecision(), TOLERANCE);
+		// 19/48 = 0.39583...
+		assertEquals(19.0/48.0, microAverage.getRecall(), TOLERANCE);
 
 		macroAverage = precisionRecallAverages.getMacroAverage();
-		// 7/18 = 0.38....
-		assertEquals(7.0/18.0, macroAverage.getPrecision(), TOLERANCE);
-		// 7/16 = 0.4375
-		assertEquals(0.4375, macroAverage.getRecall(), TOLERANCE);
+		// 8/15 = 0.53....
+		assertEquals(8.0/15.0, macroAverage.getPrecision(), TOLERANCE);
+		// 10/27 = 0.370 370...
+		assertEquals(10.0/27.0, macroAverage.getRecall(), TOLERANCE);
 	}
 }
