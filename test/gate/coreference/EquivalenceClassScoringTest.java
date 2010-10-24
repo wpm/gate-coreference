@@ -39,11 +39,11 @@ public class EquivalenceClassScoringTest {
 				{ 6, 7, 8, 9, 10, 11, 12 } };
 		key = createEquivalenceSets(keyValues);
 		response = createEquivalenceSets(responseValues);
-		// The response set is missing values.
-		int keyMissingKeyValues[][] = { { 1, 2 }, { 3, 4 } };
-		int responseMissingKeyValues[][] = { { 1, 2 } };
-		keyMissingResponse = createEquivalenceSets(keyMissingKeyValues);
-		responseMissingResponse = createEquivalenceSets(responseMissingKeyValues);
+		// The response set is missing values
+		int keyMissingResponseValues[][] = { { 1, 2 }, { 3, 4 } };
+		int responseMissingResponseValues[][] = { { 1, 2 } };
+		keyMissingResponse = createEquivalenceSets(keyMissingResponseValues);
+		responseMissingResponse = createEquivalenceSets(responseMissingResponseValues);
 		// The key and response sets have no elements in common
 		int keyNoCommonValues[][] = { { 1, 2 }, { 3, 4, 5 } };
 		int responseNoCommonValues[][] = { { 6, 7 }, { 8, 9, 10 } };
