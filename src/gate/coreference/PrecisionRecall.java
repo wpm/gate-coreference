@@ -52,6 +52,42 @@ public class PrecisionRecall {
 	}
 
 	/**
+	 * Precision/recall scores are equal if their precision and recall values
+	 * are the same.
+	 * 
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object other) {
+		if ((null != other) && other.getClass().equals(this.getClass())) {
+			double otherPrecision = ((PrecisionRecall) other).getPrecision();
+			double otherRecall = ((PrecisionRecall) other).getRecall();
+			// NaN values are equivalent.
+			return ((precision == otherPrecision) || (Double.isNaN(precision) && Double
+					.isNaN(otherPrecision)))
+					&& ((recall == otherRecall) || (Double.isNaN(recall) && Double
+							.isNaN(otherRecall)));
+		}
+		return false;
+	}
+
+	/**
+	 * Create a hash code consistent with equals.
+	 * 
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode() {
+		// Multiply each value by 100,000 to include five decimal places in the
+		// integer representation.
+		int hash = (int) (precision * 100000);
+		// Multiply by a prime to spread the combined values.
+		hash *= 17;
+		hash += (int) (recall * 100000);
+		return super.hashCode();
+	}
+
+	/**
 	 * @return the precision
 	 */
 	public double getPrecision() {
