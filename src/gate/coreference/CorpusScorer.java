@@ -29,6 +29,9 @@ import gate.coreference.EquivalenceClassScorerFactory.Method;
 import gate.creole.ANNIEConstants;
 import gate.util.GateException;
 
+import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Logger;
+
 import java.io.File;
 import java.text.Collator;
 import java.util.ArrayList;
@@ -43,14 +46,14 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 
-import org.apache.log4j.BasicConfigurator;
-
 /**
  * Coreference precision/recall scores for a corpus.
  * 
  * @author <a href="mailto:billmcn@gmail.com">W.P. McNeill</a>
  */
 public class CorpusScorer {
+
+	static Logger logger = Logger.getLogger(CorpusScorer.class.getName());
 
 	final private static String DEFAULT_KEY_NAME = "Key";
 
@@ -140,6 +143,7 @@ public class CorpusScorer {
 	private PrecisionRecall scoreDocument(Document document,
 			String matchFeature, String keyName, String responseName,
 			Method method) {
+		logger.debug("Score " + document.getName() + " " + method);
 		FeatureMap features = document.getFeatures();
 
 		// Documents without coreference information get a null score.
@@ -155,8 +159,8 @@ public class CorpusScorer {
 				responseName);
 
 		// Generate score.
-		EquivalenceClassScorer<List<Long>> scorer = scorerFactory.getScorer(
-				method);
+		EquivalenceClassScorer<List<Long>> scorer = scorerFactory
+				.getScorer(method);
 		return scorer.score(key, response);
 	}
 
@@ -183,6 +187,9 @@ public class CorpusScorer {
 
 		Collection<Collection<Integer>> matchIDsets = matchIDs
 				.get(annotationSet);
+		if (null == matchIDsets)
+			return matchOffsetSets;
+
 		AnnotationSet annotations = document.getAnnotations(annotationSet);
 		for (Collection<Integer> matchIDset : matchIDsets) {
 			Set<List<Long>> offsetSet = new HashSet<List<Long>>();
@@ -246,12 +253,10 @@ public class CorpusScorer {
 					System.out.println(document.getName());
 					PrecisionRecall mucScore = scores
 							.get(EquivalenceClassScorerFactory.Method.MUC);
-					if (null != mucScore)
-						System.out.format("MUC: %s\n", mucScore);
+					System.out.format("\tMUC: %s\n", mucScore);
 					PrecisionRecall bCubedScore = scores
 							.get(EquivalenceClassScorerFactory.Method.BCUBED);
-					if (null != bCubedScore)
-						System.out.format("B-Cubed: %s\n", bCubedScore);
+					System.out.format("\tB-Cubed: %s\n", bCubedScore);
 				}
 			} finally {
 				Factory.deleteResource(corpus);
