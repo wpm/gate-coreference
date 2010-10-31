@@ -1,3 +1,21 @@
+/**
+ * This file is part of the GATE Coreference Plugin.
+ *
+ * The GATE Coreference Plugin is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by the Free
+ * Software Foundation, either version 3 of the License, or (at your option) any later
+ * version.
+ *   
+ * The GATE Coreference Plugin is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+ *   
+ * You should have received a copy of the GNU General Public License along with the GATE
+ * Coreference Plugin.  If not, see <http://www.gnu.org/licenses/>.
+ * 
+ * Copyright 2010 W.P. McNeill
+ */
+
 package gate.coreference;
 
 import static org.junit.Assert.*;
@@ -60,6 +78,15 @@ public class CorpusScorerTest {
 		Map<Method, PrecisionRecall> scores = getScoresByName("All Precision All Recall");
 		assertEquals(new PrecisionRecall(1, 1), scores.get(Method.MUC));
 		assertEquals(new PrecisionRecall(1, 1), scores.get(Method.BCUBED));
+	}
+
+	@Test
+	public void somePrecisionSomeRecall() {
+		Map<Method, PrecisionRecall> scores = getScoresByName("Some Precision Some Recall");
+		assertEquals(new PrecisionRecall(2.0 / 3.0, 2.0 / 3.0),
+				scores.get(Method.MUC));
+		assertEquals(new PrecisionRecall(2.0 / 3.0, 2.0 / 3.0),
+				scores.get(Method.BCUBED));
 	}
 
 	/**
