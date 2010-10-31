@@ -90,7 +90,6 @@ public class CoreferenceScoringViewer extends AbstractVisualResource implements
 			}
 		};
 		documentTable.setModel(documentTableModel);
-		documentTable.setSortable(false);
 		documentTable.setEnableHidingColumns(true);
 		documentTable.setAutoResizeMode(XJTable.AUTO_RESIZE_ALL_COLUMNS);
 		add(new JScrollPane(documentTable));
