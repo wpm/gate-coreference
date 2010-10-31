@@ -43,6 +43,8 @@ import gate.event.CorpusListener;
 import gate.swing.XJTable;
 
 /**
+ * GATE visual resource for corpus coreference scores.
+ * 
  * @author <a href="mailto:billmcn@gmail.com">W.P. McNeill</a>
  */
 @SuppressWarnings("serial")
@@ -50,10 +52,6 @@ import gate.swing.XJTable;
 		resourceDisplayed = "gate.Corpus", mainViewer = false)
 public class CoreferenceScoringViewer extends AbstractVisualResource implements
 		CorpusListener {
-
-	private final Method[] scoreColumns = {
-			EquivalenceClassScorerFactory.Method.BCUBED,
-			EquivalenceClassScorerFactory.Method.MUC };
 
 	static Logger logger = Logger.getLogger(CoreferenceScoringViewer.class
 			.getName());
@@ -75,8 +73,12 @@ public class CoreferenceScoringViewer extends AbstractVisualResource implements
 	private void initModel() {
 		documentTableModel = new DefaultTableModel();
 		documentTableModel.addColumn("Document");
-		documentTableModel.addColumn("B-Cubed");
-		documentTableModel.addColumn("MUC");
+		documentTableModel.addColumn("B-Cubed Precision");
+		documentTableModel.addColumn("B-Cubed Recall");
+		documentTableModel.addColumn("B-Cubed F-score");
+		documentTableModel.addColumn("MUC Precision");
+		documentTableModel.addColumn("MUC Recall");
+		documentTableModel.addColumn("MUC F-score");
 	}
 
 	private void initViewer() {
@@ -96,10 +98,10 @@ public class CoreferenceScoringViewer extends AbstractVisualResource implements
 
 	@Override
 	public void setTarget(Object target) {
-		logger.info("Set target " + target.toString());
 		if (null != corpus && corpus != target)
 			corpus.removeCorpusListener(this);
 		corpus = (Corpus) target;
+		logger.info("Set target " + corpus.getName());
 		corpus.addCorpusListener(this);
 		corpusUpdated();
 	}
@@ -137,12 +139,26 @@ public class CoreferenceScoringViewer extends AbstractVisualResource implements
 			Vector<Object> rowData = new Vector<Object>();
 			rowData.add(document.getName());
 
-			for (int i = 0; i < scoreColumns.length; i++) {
-				PrecisionRecall score = scores.get(scoreColumns[i]);
-				if (null != score)
-					rowData.add(score.toString());
-				else
-					rowData.add(null);
+			PrecisionRecall bcubed = scores.get(Method.BCUBED);
+			if (null != bcubed) {
+				rowData.add(bcubed.getPrecision());
+				rowData.add(bcubed.getRecall());
+				rowData.add(bcubed.getFScore());
+			} else {
+				rowData.add("NA");
+				rowData.add("NA");
+				rowData.add("NA");
+			}
+
+			PrecisionRecall muc = scores.get(Method.MUC);
+			if (null != muc) {
+				rowData.add(muc.getPrecision());
+				rowData.add(muc.getRecall());
+				rowData.add(muc.getFScore());
+			} else {
+				rowData.add("NA");
+				rowData.add("NA");
+				rowData.add("NA");
 			}
 
 			documentTableModel.addRow(rowData);
