@@ -47,7 +47,13 @@ import java.util.Set;
 import java.util.TreeMap;
 
 /**
- * Coreference precision/recall scores for a corpus.
+ * Coreference precision/recall scores for a corpus. This calculates coreference
+ * scores for a corpus of documents using the specified scoring methods
+ * <p>
+ * This class does lazy calculation of scores. It maintains a table of scores
+ * for each document, but only calculates them as needed when the getScores
+ * function is called. The addDocument and removeDocument functions should be
+ * called whenever a document is added or removed from the corpus.
  * 
  * @author <a href="mailto:billmcn@gmail.com">W.P. McNeill</a>
  */
@@ -58,7 +64,8 @@ public class CorpusScorer {
 	final private static String DEFAULT_KEY_NAME = "Key";
 
 	/**
-	 * Order the documents in the table by name.
+	 * Order the documents in the table by name. The alphabetical order is
+	 * determined by the locale settings.
 	 */
 	public class DocumentCollator implements Comparator<Document> {
 		final private Collator collator;
@@ -75,8 +82,6 @@ public class CorpusScorer {
 
 	}
 
-	final Map<Document, Map<Method, PrecisionRecall>> scores;
-
 	/**
 	 * Scoring is done over sets of (Start, End) offset pairs which are stored
 	 * as lists of long values.
@@ -84,37 +89,84 @@ public class CorpusScorer {
 	private EquivalenceClassScorerFactory<List<Long>> scorerFactory = new EquivalenceClassScorerFactory<List<Long>>();
 
 	/**
+	 * The scoring methods to use.
+	 */
+	final private Set<Method> methods;
+
+	/**
+	 * The scores table. This is a map of document->method->score.
+	 */
+	private Map<Document, Map<Method, PrecisionRecall>> scores;
+
+	/**
+	 * Create a corpus scorer. This adds all the documents to the scores table
+	 * with empty scores.
+	 * 
 	 * @param corpus
 	 *            corpus to score
 	 * @param methods
 	 *            scoring methods, e.g. B-Cubed or MUC
 	 */
 	public CorpusScorer(Corpus corpus, Set<Method> methods) {
+		this.methods = methods;
+		// Create a scores table with empty entries for all the documents.
 		scores = new TreeMap<Document, Map<Method, PrecisionRecall>>(
 				new DocumentCollator());
-		for (Object object : corpus) {
-			Document document = (Document) object;
-			if (!scores.containsKey(document))
-				scores.put(document, new HashMap<Method, PrecisionRecall>());
-			Map<Method, PrecisionRecall> documentScores = scores.get(document);
-			for (Method method : methods) {
-				PrecisionRecall score = scoreDocument(document, method);
-				documentScores.put(method, score);
-			}
-		}
+		for (Object object : corpus)
+			addDocument((Document) object);
 	}
 
 	/**
-	 * @return the scores
+	 * Add an empty element to the scores table for this document.
+	 * 
+	 * @param document
+	 *            document to add
+	 */
+	public void addDocument(Document document) {
+		scores.put(document, null);
+	}
+
+	/**
+	 * Remove this document from the scores table.
+	 * 
+	 * @param document
+	 *            document to remove
+	 */
+	public void removeDocument(Document document) {
+		scores.remove(document);
+	}
+
+	/**
+	 * Return the scores for all the documents in the corpus, calculating scores
+	 * as needed.
+	 * 
+	 * @return the scores table
 	 */
 	public Map<Document, Map<Method, PrecisionRecall>> getScores() {
+		// Enumerate all the documents in the scores table.
+		for (Entry<Document, Map<Method, PrecisionRecall>> entry : scores
+				.entrySet()) {
+			Document document = entry.getKey();
+			Map<Method, PrecisionRecall> documentScores = entry.getValue();
+			// If a document's scores entry is null it has not been scored yet,
+			// so score it now and add the result to the scores table.
+			if (null == documentScores) {
+				documentScores = new HashMap<Method, PrecisionRecall>();
+				scores.put(document, documentScores);
+				for (Method method : methods) {
+					PrecisionRecall documentScore = scoreDocument(document,
+							method);
+					documentScores.put(method, documentScore);
+				}
+			}
+		}
+		// At this point all the documents in the corpus have been scored.
 		return scores;
 	}
 
 	/**
-	 * Generate coreference scores for a single document
-	 * <p>
-	 * Use the default match feature and key and response names.
+	 * Generate coreference scores for a single document. Use the default match
+	 * feature and key and response names.
 	 * 
 	 * @param document
 	 *            document to score
@@ -127,7 +179,7 @@ public class CorpusScorer {
 	}
 
 	/**
-	 * Generate coreference scores for a single document
+	 * Generate coreference scores for a single document.
 	 * 
 	 * @param document
 	 *            document to score
@@ -251,11 +303,9 @@ public class CorpusScorer {
 							.getValue();
 
 					System.out.println(document.getName());
-					PrecisionRecall mucScore = scores
-							.get(EquivalenceClassScorerFactory.Method.MUC);
+					PrecisionRecall mucScore = scores.get(Method.MUC);
 					System.out.format("\tMUC: %s\n", mucScore);
-					PrecisionRecall bCubedScore = scores
-							.get(EquivalenceClassScorerFactory.Method.BCUBED);
+					PrecisionRecall bCubedScore = scores.get(Method.BCUBED);
 					System.out.format("\tB-Cubed: %s\n", bCubedScore);
 				}
 			} finally {

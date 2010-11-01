@@ -19,6 +19,7 @@
 package gate.coreference;
 
 import java.awt.BorderLayout;
+import java.awt.Cursor;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -56,11 +57,38 @@ public class CoreferenceScoringViewer extends AbstractVisualResource implements
 	static Logger logger = Logger.getLogger(CoreferenceScoringViewer.class
 			.getName());
 
+	/**
+	 * Scoring methods to use.
+	 */
+	final private Set<Method> methods = new HashSet<Method>();
+
+	/**
+	 * Corpus whose coreference scores are displayed.
+	 */
 	private Corpus corpus;
 
+	/**
+	 * Scorer of the corpus.
+	 */
+	private CorpusScorer scorer;
+
+	/**
+	 * Table in which the document scores are displayed.
+	 */
+	private XJTable documentTable;
+
+	/**
+	 * Data model for the table in which the document scores are displayed.
+	 */
 	private DefaultTableModel documentTableModel;
 
-	private XJTable documentTable;
+	/**
+	 * Specify the scoring methods used by this viewer.
+	 */
+	public CoreferenceScoringViewer() {
+		methods.add(Method.MUC);
+		methods.add(Method.BCUBED);
+	}
 
 	@Override
 	public Resource init() throws ResourceInstantiationException {
@@ -85,6 +113,11 @@ public class CoreferenceScoringViewer extends AbstractVisualResource implements
 	private void initViewer() {
 		setLayout(new BorderLayout());
 		documentTable = new XJTable() {
+			/**
+			 * This document scores table is not editable.
+			 * 
+			 * @see javax.swing.JTable#isCellEditable(int, int)
+			 */
 			@Override
 			public boolean isCellEditable(int rowIndex, int colIndex) {
 				return false;
@@ -102,37 +135,36 @@ public class CoreferenceScoringViewer extends AbstractVisualResource implements
 			corpus.removeCorpusListener(this);
 		corpus = (Corpus) target;
 		logger.debug("Set target " + corpus.getName());
+		scorer = new CorpusScorer(corpus, methods);
 		corpus.addCorpusListener(this);
-		corpusUpdated();
+		updateDocumentTable();
 	}
 
 	@Override
 	public void documentAdded(CorpusEvent e) {
-		logger.debug("Document added: " + e.getDocument().getName());
-		corpusUpdated();
+		Document document = e.getDocument();
+		logger.debug("Document added: " + document.getName());
+		scorer.addDocument(document);
+		updateDocumentTable();
 	}
 
 	@Override
 	public void documentRemoved(CorpusEvent e) {
-		logger.debug("Document removed: " + e.getDocument().getName());
-		corpusUpdated();
-	}	
-	
+		Document document = e.getDocument();
+		logger.debug("Document removed: " + document.getName());
+		scorer.removeDocument(document);
+		updateDocumentTable();
+	}
+
 	/**
-	 * This function is called whenever the corpus changes. It recalculates all
-	 * the coreference scores and updates the table model.
+	 * This function is called whenever the corpus changes. It recalculates the
+	 * coreference scores and updates the table model.
 	 */
-	private void corpusUpdated() {
+	private void updateDocumentTable() {
 		documentTableModel = initModel();
 		documentTable.setModel(documentTableModel);
 
-		// Use both scoring methods.
-		Set<Method> methods = new HashSet<Method>();
-		methods.add(EquivalenceClassScorerFactory.Method.MUC);
-		methods.add(EquivalenceClassScorerFactory.Method.BCUBED);
-
-		CorpusScorer scorer = new CorpusScorer(corpus, methods);
-
+		setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 		Map<Document, Map<Method, PrecisionRecall>> corpusScores = scorer
 				.getScores();
 		for (Entry<Document, Map<Method, PrecisionRecall>> documentScores : corpusScores
@@ -141,6 +173,7 @@ public class CoreferenceScoringViewer extends AbstractVisualResource implements
 			Map<Method, PrecisionRecall> scores = documentScores.getValue();
 
 			Vector<Object> rowData = new Vector<Object>();
+
 			rowData.add(document.getName());
 
 			PrecisionRecall bcubed = scores.get(Method.BCUBED);
@@ -167,6 +200,7 @@ public class CoreferenceScoringViewer extends AbstractVisualResource implements
 
 			documentTableModel.addRow(rowData);
 		}
+		setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 	}
 
 }
