@@ -65,20 +65,21 @@ public class CoreferenceScoringViewer extends AbstractVisualResource implements
 	@Override
 	public Resource init() throws ResourceInstantiationException {
 		logger.debug("Initialize coreference viewer");
-		initModel();
+		documentTableModel = initModel();
 		initViewer();
 		return super.init();
 	}
 
-	private void initModel() {
-		documentTableModel = new DefaultTableModel();
-		documentTableModel.addColumn("Document");
-		documentTableModel.addColumn("B-Cubed Precision");
-		documentTableModel.addColumn("B-Cubed Recall");
-		documentTableModel.addColumn("B-Cubed F-score");
-		documentTableModel.addColumn("MUC Precision");
-		documentTableModel.addColumn("MUC Recall");
-		documentTableModel.addColumn("MUC F-score");
+	private DefaultTableModel initModel() {
+		DefaultTableModel model = new DefaultTableModel();
+		model.addColumn("Document");
+		model.addColumn("B-Cubed Precision");
+		model.addColumn("B-Cubed Recall");
+		model.addColumn("B-Cubed F-score");
+		model.addColumn("MUC Precision");
+		model.addColumn("MUC Recall");
+		model.addColumn("MUC F-score");
+		return model;
 	}
 
 	private void initViewer() {
@@ -107,20 +108,24 @@ public class CoreferenceScoringViewer extends AbstractVisualResource implements
 
 	@Override
 	public void documentAdded(CorpusEvent e) {
-		logger.debug("Document added " + e.toString());
+		logger.debug("Document added: " + e.getDocument().getName());
 		corpusUpdated();
 	}
 
 	@Override
 	public void documentRemoved(CorpusEvent e) {
-		logger.debug("Document removed " + e.toString());
+		logger.debug("Document removed: " + e.getDocument().getName());
 		corpusUpdated();
-	}
-
+	}	
+	
 	/**
-	 * Update the scoring table model.
+	 * This function is called whenever the corpus changes. It recalculates all
+	 * the coreference scores and updates the table model.
 	 */
 	private void corpusUpdated() {
+		documentTableModel = initModel();
+		documentTable.setModel(documentTableModel);
+
 		// Use both scoring methods.
 		Set<Method> methods = new HashSet<Method>();
 		methods.add(EquivalenceClassScorerFactory.Method.MUC);
