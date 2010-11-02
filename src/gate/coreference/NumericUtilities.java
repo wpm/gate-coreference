@@ -21,10 +21,12 @@ package gate.coreference;
 import java.util.Collection;
 
 /**
+ * Miscellaneous arithmetic utilities.
+ * 
  * @author <a href="mailto:billmcn@gmail.com">W.P. McNeill</a>
  */
 public class NumericUtilities {
-	
+
 	/**
 	 * @param <T>
 	 *            numeric type

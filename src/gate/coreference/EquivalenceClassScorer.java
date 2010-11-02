@@ -43,5 +43,14 @@ public interface EquivalenceClassScorer<T> {
 	 */
 	public PrecisionRecall score(Set<Set<T>> key, Set<Set<T>> response);
 
-	public PrecisionRecallAverages scoreMultipleSets(Iterable<List<Set<Set<T>>>> sets);
+	/**
+	 * Generate precision and recall scores for multiple equivalence classes
+	 * along with their micro and macro averages.
+	 * 
+	 * @param sets
+	 *            equivalence classes
+	 * @return precision and recall scores and micro and macro averages
+	 */
+	public PrecisionRecallAverages scoreMultipleSets(
+			Iterable<List<Set<Set<T>>>> sets);
 }

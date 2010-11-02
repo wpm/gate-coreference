@@ -19,6 +19,9 @@
 package gate.coreference;
 
 /**
+ * Factory that returns an equivalence class scorer that uses a specified
+ * algorithm.
+ * 
  * @author <a href="mailto:billmcn@gmail.com">W.P. McNeill</a>
  */
 public class EquivalenceClassScorerFactory<T> {

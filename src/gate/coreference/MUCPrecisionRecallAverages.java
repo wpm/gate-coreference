@@ -22,6 +22,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
+ * Precision and recall micro and macro averages for MUC scores.
+ * 
  * @author <a href="mailto:billmcn@gmail.com">W.P. McNeill</a>
  */
 public class MUCPrecisionRecallAverages extends PrecisionRecallAverages {
@@ -58,7 +60,7 @@ public class MUCPrecisionRecallAverages extends PrecisionRecallAverages {
 				precisionDenominatorTerms);
 		double recall = calculateRatioFromTerms(recallNumeratorTerms,
 				recallDenominatorTerms);
-	
+
 		return new PrecisionRecall(precision, recall);
 	}
 

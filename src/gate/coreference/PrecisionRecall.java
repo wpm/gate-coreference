@@ -21,7 +21,7 @@ package gate.coreference;
 import java.util.Formatter;
 
 /**
- * Precision and recall scores
+ * Precision and recall.
  * <p>
  * This object contains precision and recall scores and calculates F-score.
  * 

@@ -57,12 +57,6 @@ import java.util.TreeMap;
  * 
  * @author <a href="mailto:billmcn@gmail.com">W.P. McNeill</a>
  */
-/**
- * @author <a href="mailto:billmcn@gmail.com">W.P. McNeill</a>
- */
-/**
- * @author <a href="mailto:billmcn@gmail.com">W.P. McNeill</a>
- */
 public class CorpusScorer {
 
 	static Logger logger = Logger.getLogger(CorpusScorer.class.getName());

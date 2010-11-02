@@ -138,6 +138,11 @@ public class CoreferenceScoringViewer extends AbstractVisualResource implements
 		return super.init();
 	}
 
+	/**
+	 * Create the scoring table model.
+	 * 
+	 * @return a new scoring table model with no data in it
+	 */
 	private DefaultTableModel initModel() {
 		DefaultTableModel model = new DefaultTableModel();
 		model.addColumn("Document");
@@ -150,6 +155,9 @@ public class CoreferenceScoringViewer extends AbstractVisualResource implements
 		return model;
 	}
 
+	/**
+	 * Initialize the user interface components.
+	 */
 	private void initViewer() {
 		setLayout(new BorderLayout());
 		documentTable = new XJTable() {
@@ -170,9 +178,9 @@ public class CoreferenceScoringViewer extends AbstractVisualResource implements
 	}
 
 	/**
-	 * This registers the viewer as a listener for the corpus and the feature
-	 * maps of all the documents it contains, creates a scorer object for the
-	 * new corpus and uses it to update the table model.
+	 * Register the viewer as a listener for the corpus and the feature maps of
+	 * all the documents it contains, create a scorer object for the new corpus
+	 * and use it to update the table model.
 	 * 
 	 * @see gate.creole.AbstractVisualResource#setTarget(java.lang.Object)
 	 */
@@ -227,9 +235,9 @@ public class CoreferenceScoringViewer extends AbstractVisualResource implements
 	}
 
 	/**
-	 * This function is called whenever the corpus changes in a way that could
-	 * affect the coreference scores. It recalculates the coreference scores and
-	 * updates the table model.
+	 * Called whenever the corpus changes in a way that could affect the
+	 * coreference scores. It recalculates the coreference scores and updates
+	 * the table model.
 	 */
 	private void updateDocumentTable() {
 		documentTableModel = initModel();
