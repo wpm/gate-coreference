@@ -73,7 +73,7 @@ public class CorpusScorer {
 	 * Order the documents in the table by name. The alphabetical order is
 	 * determined by the locale settings.
 	 */
-	public class DocumentCollator implements Comparator<Document> {
+	private class DocumentCollator implements Comparator<Document> {
 		final private Collator collator;
 
 		public DocumentCollator() {
