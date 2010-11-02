@@ -56,7 +56,9 @@ import java.util.TreeMap;
  * This class does lazy calculation of scores. It maintains a table of scores
  * for each document, but only calculates them as needed when the getScores
  * function is called. The addDocument and removeDocument functions should be
- * called whenever a document is added or removed from the corpus.
+ * called whenever a document is added or removed from the corpus. The
+ * resetDocumentScores function should be called whenever a document changes in
+ * a way that might affect its coreference scores.
  * 
  * @author <a href="mailto:billmcn@gmail.com">W.P. McNeill</a>
  */
