@@ -27,6 +27,7 @@ import java.util.Map.Entry;
 import java.util.Vector;
 
 import javax.swing.JScrollPane;
+import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 
 import org.apache.log4j.Logger;
@@ -41,6 +42,7 @@ import gate.creole.metadata.CreoleResource;
 import gate.creole.metadata.GuiType;
 import gate.event.CorpusEvent;
 import gate.event.CorpusListener;
+import gate.event.FeatureMapListener;
 import gate.swing.XJTable;
 
 /**
@@ -53,6 +55,38 @@ import gate.swing.XJTable;
 		resourceDisplayed = "gate.Corpus", mainViewer = false)
 public class CoreferenceScoringViewer extends AbstractVisualResource implements
 		CorpusListener {
+
+	/**
+	 * Object that listens for changes to an individual document's feature map
+	 * and relays those changes on to the viewer.
+	 * <p>
+	 * I have to store information about the document here because the
+	 * featureMapUpdated function does not tell you which feature map has been
+	 * updated, and I don't want to have to recalculate coreference scores for
+	 * the entire corpus when a single document is changed.
+	 */
+	private class DocumentFeatureMapListener implements FeatureMapListener {
+
+		final private CoreferenceScoringViewer viewer;
+		final private Document document;
+
+		public DocumentFeatureMapListener(CoreferenceScoringViewer viewer,
+				Document document) {
+			this.viewer = viewer;
+			this.document = document;
+			document.getFeatures().addFeatureMapListener(this);
+		}
+
+		@Override
+		public void featureMapUpdated() {
+			viewer.documentFeatureMapUpdated(document);
+		}
+
+		public void removeListener() {
+			document.getFeatures().removeFeatureMapListener(this);
+		}
+
+	}
 
 	static Logger logger = Logger.getLogger(CoreferenceScoringViewer.class
 			.getName());
@@ -81,6 +115,12 @@ public class CoreferenceScoringViewer extends AbstractVisualResource implements
 	 * Data model for the table in which the document scores are displayed.
 	 */
 	private DefaultTableModel documentTableModel;
+
+	/**
+	 * Set of objects that listen for changes to the feature maps of the
+	 * documents in the corpus.
+	 */
+	private Set<DocumentFeatureMapListener> documentListeners = new HashSet<DocumentFeatureMapListener>();
 
 	/**
 	 * Specify the scoring methods used by this viewer.
@@ -125,18 +165,36 @@ public class CoreferenceScoringViewer extends AbstractVisualResource implements
 		};
 		documentTable.setModel(documentTableModel);
 		documentTable.setEnableHidingColumns(true);
-		documentTable.setAutoResizeMode(XJTable.AUTO_RESIZE_ALL_COLUMNS);
+		documentTable.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
 		add(new JScrollPane(documentTable));
 	}
 
+	/**
+	 * This registers the viewer as a listener for the corpus and the feature
+	 * maps of all the documents it contains, creates a scorer object for the
+	 * new corpus and uses it to update the table model.
+	 * 
+	 * @see gate.creole.AbstractVisualResource#setTarget(java.lang.Object)
+	 */
 	@Override
 	public void setTarget(Object target) {
-		if (null != corpus && corpus != target)
+		if (null != corpus && corpus != target) {
+			// Deregister listeners from the previous corpus.
 			corpus.removeCorpusListener(this);
+			for (DocumentFeatureMapListener listener : documentListeners)
+				listener.removeListener();
+		}
 		corpus = (Corpus) target;
 		logger.debug("Set target " + corpus.getName());
-		scorer = new CorpusScorer(corpus, methods);
+		// Register listeners for the corpus and the documents it contains.
 		corpus.addCorpusListener(this);
+		for (Object object : corpus) {
+			Document document = (Document) object;
+			documentListeners
+					.add(new DocumentFeatureMapListener(this, document));
+		}
+		// Create a new corpus scorer and use it to update the table model.
+		scorer = new CorpusScorer(corpus, methods);
 		updateDocumentTable();
 	}
 
@@ -157,8 +215,21 @@ public class CoreferenceScoringViewer extends AbstractVisualResource implements
 	}
 
 	/**
-	 * This function is called whenever the corpus changes. It recalculates the
-	 * coreference scores and updates the table model.
+	 * Called when a document's feature map has changed.
+	 * 
+	 * @param document
+	 *            document whose feature map has changed
+	 */
+	public void documentFeatureMapUpdated(Document document) {
+		logger.debug("Document feature map updated: " + document.getName());
+		scorer.resetDocumentScores(document);
+		updateDocumentTable();
+	}
+
+	/**
+	 * This function is called whenever the corpus changes in a way that could
+	 * affect the coreference scores. It recalculates the coreference scores and
+	 * updates the table model.
 	 */
 	private void updateDocumentTable() {
 		documentTableModel = initModel();

@@ -57,11 +57,17 @@ import java.util.TreeMap;
  * 
  * @author <a href="mailto:billmcn@gmail.com">W.P. McNeill</a>
  */
+/**
+ * @author <a href="mailto:billmcn@gmail.com">W.P. McNeill</a>
+ */
+/**
+ * @author <a href="mailto:billmcn@gmail.com">W.P. McNeill</a>
+ */
 public class CorpusScorer {
 
 	static Logger logger = Logger.getLogger(CorpusScorer.class.getName());
 
-	final private static String DEFAULT_KEY_NAME = "Key";
+	final public static String DEFAULT_KEY_NAME = "Key";
 
 	/**
 	 * Order the documents in the table by name. The alphabetical order is
@@ -134,6 +140,16 @@ public class CorpusScorer {
 	 */
 	public void removeDocument(Document document) {
 		scores.remove(document);
+	}
+
+	/**
+	 * Reset the scores for a document so that they will be recalculated.
+	 * 
+	 * @param document
+	 *            document whose scores are reset
+	 */
+	public void resetDocumentScores(Document document) {
+		scores.put(document, null);
 	}
 
 	/**
