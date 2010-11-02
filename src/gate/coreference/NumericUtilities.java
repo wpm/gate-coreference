@@ -19,6 +19,7 @@
 package gate.coreference;
 
 import java.util.Collection;
+import java.util.List;
 
 /**
  * Miscellaneous arithmetic utilities.
@@ -40,5 +41,18 @@ public class NumericUtilities {
 			average += value.doubleValue();
 		average /= values.size();
 		return average;
+	}
+
+	/**
+	 * Sum a list of integers.
+	 * 
+	 * @param terms
+	 * @return sum of the terms
+	 */
+	static public int sumTerms(List<Integer> terms) {
+		int sum = 0;
+		for (Integer term : terms)
+			sum += term;
+		return sum;
 	}
 }

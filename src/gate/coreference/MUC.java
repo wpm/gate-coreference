@@ -52,14 +52,14 @@ public class MUC<T> implements EquivalenceClassScorer<T> {
 
 			// Precision
 			List<List<Integer>> precisionTerms = MUCscoreTerms(response, key);
-			numerator = sumTerms(precisionTerms.get(0));
-			denominator = sumTerms(precisionTerms.get(1));
+			numerator = NumericUtilities.sumTerms(precisionTerms.get(0));
+			denominator = NumericUtilities.sumTerms(precisionTerms.get(1));
 			precision = (double) numerator / denominator;
 
 			// Recall
 			List<List<Integer>> recallTerms = MUCscoreTerms(key, response);
-			numerator = sumTerms(recallTerms.get(0));
-			denominator = sumTerms(recallTerms.get(1));
+			numerator = NumericUtilities.sumTerms(recallTerms.get(0));
+			denominator = NumericUtilities.sumTerms(recallTerms.get(1));
 			recall = (double) numerator / denominator;
 
 			PrecisionRecall score = new PrecisionRecall(precision, recall);
@@ -132,19 +132,6 @@ public class MUC<T> implements EquivalenceClassScorer<T> {
 			if (!SetUtilities.intersection(keySet, responseSet).isEmpty())
 				n++;
 		return n;
-	}
-
-	/**
-	 * Sum a list of integers.
-	 * 
-	 * @param terms
-	 * @return sum of the terms
-	 */
-	private int sumTerms(List<Integer> terms) {
-		int sum = 0;
-		for (Integer term : terms)
-			sum += term;
-		return sum;
 	}
 
 }
