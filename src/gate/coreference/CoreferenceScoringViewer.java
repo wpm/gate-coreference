@@ -27,8 +27,10 @@ import java.util.Map.Entry;
 import java.util.Vector;
 
 import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
 
 import org.apache.log4j.Logger;
 
@@ -56,6 +58,26 @@ import gate.swing.XJTable;
 		resourceDisplayed = "gate.Corpus", mainViewer = false)
 public class CoreferenceScoringViewer extends AbstractVisualResource implements
 		CorpusListener {
+
+	/**
+	 * An {@link XJTable} whose cells are not editable.
+	 */
+	private class ImmutableXJTable extends XJTable {
+		/**
+		 * @param model
+		 *            data model for this table
+		 */
+		public ImmutableXJTable(TableModel model) {
+			super(model);
+			setEnableHidingColumns(true);
+			setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+		}
+
+		@Override
+		public boolean isCellEditable(int rowIndex, int colIndex) {
+			return false;
+		}
+	}
 
 	/**
 	 * Object that listens for changes to an individual document's feature map
@@ -113,9 +135,19 @@ public class CoreferenceScoringViewer extends AbstractVisualResource implements
 	private XJTable documentTable;
 
 	/**
+	 * Table in which the average scores are displayed.
+	 */
+	private ImmutableXJTable averagesTable;
+
+	/**
 	 * Data model for the table in which the document scores are displayed.
 	 */
 	private DefaultTableModel documentTableModel;
+
+	/**
+	 * Data model for the table in which the score averages are displayed.
+	 */
+	private DefaultTableModel averagesTableModel;
 
 	/**
 	 * Set of objects that listen for changes to the feature maps of the
@@ -134,7 +166,7 @@ public class CoreferenceScoringViewer extends AbstractVisualResource implements
 	@Override
 	public Resource init() throws ResourceInstantiationException {
 		logger.debug("Initialize coreference viewer");
-		documentTableModel = initModel();
+		initModel();
 		initViewer();
 		return super.init();
 	}
@@ -144,16 +176,25 @@ public class CoreferenceScoringViewer extends AbstractVisualResource implements
 	 * 
 	 * @return a new scoring table model with no data in it
 	 */
-	private DefaultTableModel initModel() {
-		DefaultTableModel model = new DefaultTableModel();
-		model.addColumn("Document");
-		model.addColumn("B-Cubed Precision");
-		model.addColumn("B-Cubed Recall");
-		model.addColumn("B-Cubed F-score");
-		model.addColumn("MUC Precision");
-		model.addColumn("MUC Recall");
-		model.addColumn("MUC F-score");
-		return model;
+	private void initModel() {
+		// Document scores table model.
+		documentTableModel = new DefaultTableModel();
+		documentTableModel.addColumn("Document");
+		documentTableModel.addColumn("B-Cubed Precision");
+		documentTableModel.addColumn("B-Cubed Recall");
+		documentTableModel.addColumn("B-Cubed F-score");
+		documentTableModel.addColumn("MUC Precision");
+		documentTableModel.addColumn("MUC Recall");
+		documentTableModel.addColumn("MUC F-score");
+		// Averages table model.
+		averagesTableModel = new DefaultTableModel();
+		averagesTableModel.addColumn("Average");
+		averagesTableModel.addColumn("B-Cubed Precision");
+		averagesTableModel.addColumn("B-Cubed Recall");
+		averagesTableModel.addColumn("B-Cubed F-score");
+		averagesTableModel.addColumn("MUC Precision");
+		averagesTableModel.addColumn("MUC Recall");
+		averagesTableModel.addColumn("MUC F-score");
 	}
 
 	/**
@@ -161,21 +202,17 @@ public class CoreferenceScoringViewer extends AbstractVisualResource implements
 	 */
 	private void initViewer() {
 		setLayout(new BorderLayout());
-		documentTable = new XJTable() {
-			/**
-			 * This document scores table is not editable.
-			 * 
-			 * @see javax.swing.JTable#isCellEditable(int, int)
-			 */
-			@Override
-			public boolean isCellEditable(int rowIndex, int colIndex) {
-				return false;
-			}
-		};
-		documentTable.setModel(documentTableModel);
-		documentTable.setEnableHidingColumns(true);
-		documentTable.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
-		add(new JScrollPane(documentTable));
+		JTabbedPane tabbedPane = new JTabbedPane();
+
+		documentTable = new ImmutableXJTable(documentTableModel);
+		tabbedPane.addTab("Scores", null, new JScrollPane(documentTable),
+				"Individual document coreference scores");
+
+		averagesTable = new ImmutableXJTable(averagesTableModel);
+		tabbedPane.addTab("Averages", null, new JScrollPane(averagesTable),
+				"Micro and macro averages");
+
+		add(tabbedPane);
 	}
 
 	/**
@@ -204,7 +241,7 @@ public class CoreferenceScoringViewer extends AbstractVisualResource implements
 		}
 		// Create a new corpus scorer and use it to update the table model.
 		scorer = new CorpusScorer(corpus, methods);
-		updateDocumentTable();
+		updateTables();
 	}
 
 	@Override
@@ -212,7 +249,7 @@ public class CoreferenceScoringViewer extends AbstractVisualResource implements
 		Document document = e.getDocument();
 		logger.debug("Document added: " + document.getName());
 		scorer.addDocument(document);
-		updateDocumentTable();
+		updateTables();
 	}
 
 	@Override
@@ -220,7 +257,7 @@ public class CoreferenceScoringViewer extends AbstractVisualResource implements
 		Document document = e.getDocument();
 		logger.debug("Document removed: " + document.getName());
 		scorer.removeDocument(document);
-		updateDocumentTable();
+		updateTables();
 	}
 
 	/**
@@ -232,17 +269,18 @@ public class CoreferenceScoringViewer extends AbstractVisualResource implements
 	public void documentFeatureMapUpdated(Document document) {
 		logger.debug("Document feature map updated: " + document.getName());
 		scorer.resetDocumentScores(document);
-		updateDocumentTable();
+		updateTables();
 	}
 
 	/**
 	 * Called whenever the corpus changes in a way that could affect the
 	 * coreference scores. It recalculates the coreference scores and updates
-	 * the table model.
+	 * the table models.
 	 */
-	private void updateDocumentTable() {
-		documentTableModel = initModel();
+	private void updateTables() {
+		initModel();
 		documentTable.setModel(documentTableModel);
+		averagesTable.setModel(averagesTableModel);
 
 		setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 		Map<Document, Map<Method, PrecisionRecall>> corpusScores = scorer
