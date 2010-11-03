@@ -16,43 +16,42 @@
  * Copyright 2010 W.P. McNeill
  */
 
-package gate.coreference;
+package gate.coreference.scorer;
 
-import java.util.Collection;
+
 import java.util.List;
+import java.util.Set;
 
 /**
- * Miscellaneous arithmetic utilities.
+ * Framework for generating a score that measures the similarity of two
+ * equivalence classes.
+ * 
+ * @param T
+ *            type of objects in equivalence sets
  * 
  * @author <a href="mailto:billmcn@gmail.com">W.P. McNeill</a>
  */
-public class NumericUtilities {
+public interface EquivalenceClassScorer<T> {
 
 	/**
-	 * @param <T>
-	 *            numeric type
-	 * @param values
-	 *            collection of values
-	 * @return the average of the values
-	 */
-	static public final <T extends Number> double average(Collection<T> values) {
-		double average = 0;
-		for (T value : values)
-			average += value.doubleValue();
-		average /= values.size();
-		return average;
-	}
-
-	/**
-	 * Sum a list of integers.
+	 * Precision and recall scores for a pair of equivalence sets.
 	 * 
-	 * @param terms
-	 * @return sum of the terms
+	 * @param key
+	 *            key equivalence classes
+	 * @param response
+	 *            response equivalence classes
+	 * @return Precision and recall scores
 	 */
-	static public int sumTerms(List<Integer> terms) {
-		int sum = 0;
-		for (Integer term : terms)
-			sum += term;
-		return sum;
-	}
+	public PrecisionRecall score(Set<Set<T>> key, Set<Set<T>> response);
+
+	/**
+	 * Generate precision and recall scores for multiple equivalence classes
+	 * along with their micro and macro averages.
+	 * 
+	 * @param sets
+	 *            equivalence classes
+	 * @return precision and recall scores and micro and macro averages
+	 */
+	public PrecisionRecallAverages scoreMultipleSets(
+			Iterable<List<Set<Set<T>>>> sets);
 }

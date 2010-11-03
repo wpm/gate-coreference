@@ -25,7 +25,10 @@ import gate.Document;
 import gate.Factory;
 import gate.FeatureMap;
 import gate.Gate;
-import gate.coreference.EquivalenceClassScorerFactory.Method;
+import gate.coreference.scorer.EquivalenceClassScorer;
+import gate.coreference.scorer.EquivalenceClassScorerFactory;
+import gate.coreference.scorer.PrecisionRecall;
+import gate.coreference.scorer.EquivalenceClassScorerFactory.Method;
 import gate.creole.ANNIEConstants;
 import gate.util.GateException;
 

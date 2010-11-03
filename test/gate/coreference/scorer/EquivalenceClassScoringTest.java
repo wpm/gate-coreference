@@ -16,14 +16,17 @@
  * Copyright 2010 W.P. McNeill
  */
 
-package gate.coreference;
+package gate.coreference.scorer;
 
 import static org.junit.Assert.*;
 
 import org.junit.Before;
 import org.junit.Test;
 
-import gate.coreference.BCubed;
+import gate.coreference.TestUtilities;
+import gate.coreference.scorer.BCubed;
+import gate.coreference.scorer.MUC;
+import gate.coreference.scorer.PrecisionRecall;
 
 import java.util.Set;
 

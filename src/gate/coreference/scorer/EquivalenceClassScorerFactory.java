@@ -16,7 +16,8 @@
  * Copyright 2010 W.P. McNeill
  */
 
-package gate.coreference;
+package gate.coreference.scorer;
+
 
 /**
  * Factory that returns an equivalence class scorer that uses a specified

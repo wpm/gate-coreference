@@ -16,7 +16,8 @@
  * Copyright 2010 W.P. McNeill
  */
 
-package gate.coreference;
+package gate.coreference.scorer;
+
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -37,7 +38,7 @@ public class BCubed<T> implements EquivalenceClassScorer<T> {
 	/**
 	 * B-Cubed scores for a pair of equivalence sets
 	 * 
-	 * @see gate.coreference.EquivalenceClassScorer#score(java.util.Set,
+	 * @see gate.coreference.scorer.EquivalenceClassScorer#score(java.util.Set,
 	 *      java.util.Set)
 	 */
 	@Override
@@ -55,7 +56,7 @@ public class BCubed<T> implements EquivalenceClassScorer<T> {
 	 * B-Cubed scores for a set of equivalence set pairs and their micro and
 	 * macro averages.
 	 * 
-	 * @see gate.coreference.EquivalenceClassScorer#scoreMultipleSets(java.lang.Iterable)
+	 * @see gate.coreference.scorer.EquivalenceClassScorer#scoreMultipleSets(java.lang.Iterable)
 	 */
 	@Override
 	public PrecisionRecallAverages scoreMultipleSets(

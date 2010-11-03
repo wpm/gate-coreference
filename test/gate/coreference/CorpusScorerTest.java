@@ -31,7 +31,11 @@ import gate.DataStore;
 import gate.Document;
 import gate.Factory;
 import gate.Gate;
-import gate.coreference.EquivalenceClassScorerFactory.Method;
+import gate.coreference.CorpusScorer;
+import gate.coreference.Datastore;
+import gate.coreference.scorer.EquivalenceClassScorerFactory;
+import gate.coreference.scorer.PrecisionRecall;
+import gate.coreference.scorer.EquivalenceClassScorerFactory.Method;
 import gate.persist.PersistenceException;
 import gate.util.GateException;
 

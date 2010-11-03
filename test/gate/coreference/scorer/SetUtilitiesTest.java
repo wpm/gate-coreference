@@ -16,9 +16,11 @@
  * Copyright 2010 W.P. McNeill
  */
 
-package gate.coreference;
+package gate.coreference.scorer;
 
 import static org.junit.Assert.assertEquals;
+
+import gate.coreference.scorer.SetUtilities;
 
 import java.util.HashSet;
 import java.util.Set;
