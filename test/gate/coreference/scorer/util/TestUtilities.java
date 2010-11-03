@@ -27,7 +27,8 @@ import java.util.TreeSet;
  */
 public class TestUtilities {
 
-	final static public Set<Set<Integer>> createEquivalenceSets(int[][] valueSets) {
+	final static public Set<Set<Integer>> createEquivalenceSets(
+			int[][] valueSets) {
 		Set<Set<Integer>> partition = new HashSet<Set<Integer>>();
 		for (int[] valueSet : valueSets) {
 			Set<Integer> set = new TreeSet<Integer>();
