@@ -19,6 +19,9 @@
 package gate.coreference.scorer;
 
 
+import gate.coreference.scorer.util.NumericUtilities;
+import gate.coreference.scorer.util.SetUtilities;
+
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;

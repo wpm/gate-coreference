@@ -18,11 +18,11 @@
 
 package gate.coreference.scorer;
 
-import gate.coreference.TestUtilities;
 import gate.coreference.scorer.BCubed;
 import gate.coreference.scorer.MUC;
 import gate.coreference.scorer.PrecisionRecall;
 import gate.coreference.scorer.PrecisionRecallAverages;
+import gate.coreference.scorer.util.TestUtilities;
 
 import java.util.LinkedList;
 import java.util.List;

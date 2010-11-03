@@ -23,10 +23,10 @@ import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 
-import gate.coreference.TestUtilities;
 import gate.coreference.scorer.BCubed;
 import gate.coreference.scorer.MUC;
 import gate.coreference.scorer.PrecisionRecall;
+import gate.coreference.scorer.util.TestUtilities;
 
 import java.util.Set;
 

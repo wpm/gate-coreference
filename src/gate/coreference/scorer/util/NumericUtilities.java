@@ -16,7 +16,7 @@
  * Copyright 2010 W.P. McNeill
  */
 
-package gate.coreference.scorer;
+package gate.coreference.scorer.util;
 
 import java.util.Collection;
 import java.util.List;
